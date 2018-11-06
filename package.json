@@ -1,0 +1,59 @@
+{
+  "name": "ts-node-base",
+  "version": "0.0.0",
+  "description": "Project setup by robb-j/ts-node-base",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "coverage": "nyc --reporter=html npm test -s",
+    "lint": "npx tslint -p .",
+    "mysql": "docker run -it --rm --name dev_mysql -v mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -p 3306:3306 mysql:5.7",
+    "preversion": "npm run lint -s && npm test -s && tsc && git add -A dist",
+    "prettier": "prettier --write */**/*.{js,ts,json,css,md}",
+    "start": "node -r tsconfig-paths/register dist",
+    "test": "mocha -r ts-node/register -r tsconfig-paths/register 'spec/**/*.ts'",
+    "dev": "nodemon -w src -e ts -x ts-node -q src/index.ts"
+  },
+  "author": "robb-j",
+  "license": "ISC",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "commander": "^2.19.0",
+    "express": "^4.16.4",
+    "knex": "^0.15.2",
+    "mysql": "^2.16.0",
+    "sequelize": "^4.41.0",
+    "sequelize-cli": "^5.2.0",
+    "tsconfig-paths": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/express": "^4.16.0",
+    "@types/knex": "^0.14.26",
+    "@types/mocha": "^5.2.5",
+    "@types/mysql": "^2.15.5",
+    "@types/node": "^10.12.1",
+    "@types/sequelize": "^4.27.30",
+    "chai": "^4.2.0",
+    "husky": "^1.1.2",
+    "lint-staged": "^8.0.3",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.5",
+    "nyc": "^13.1.0",
+    "prettier": "1.14.3",
+    "sqlite3": "^4.0.3",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.1.4"
+  }
+}
