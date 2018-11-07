@@ -1,4 +1,0 @@
-'use strict'
-Object.defineProperty(exports, '__esModule', { value: true })
-function me(ctx) {}
-exports.me = me
