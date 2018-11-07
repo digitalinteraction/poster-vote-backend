@@ -1,6 +1,6 @@
-import * as Knex from 'knex'
-
-export async function up(knex: Knex) {
+'use strict'
+Object.defineProperty(exports, '__esModule', { value: true })
+async function up(knex) {
   await knex.schema.createTable('posters', table => {
     table.increments()
     table.timestamps(true, true)
@@ -11,7 +11,8 @@ export async function up(knex: Knex) {
     table.string('contact', 255)
   })
 }
-
-export async function down(knex: Knex) {
+exports.up = up
+async function down(knex) {
   await knex.schema.dropTable('posters')
 }
+exports.down = down

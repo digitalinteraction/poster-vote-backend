@@ -1,29 +1,20 @@
-// import * as Sequelize from 'sequelize'
-import { makeSqlClient } from './sql'
+import { makeServer, startServer } from './core/server'
+import { dbFromEnvironment } from './core/db'
 
-const sqlUri = 'mysql://root:secret@127.0.0.1:3306/postervote'
+import validateEnv = require('valid-env')
+
+export const validate = () => validateEnv(['DB_TYPE', 'DB_URI'])
 ;(async () => {
   try {
-    // let sequelize = new Sequelize('mysql://root:secret@127.0.0.1/postervote')
-    //
-    // const Poster = sequelize.define('user', {
-    //   question: { type: Sequelize.STRING },
-    //   colour: { type: Sequelize.STRING }
-    // })
-    //
-    // await Promise.all([
-    //   Poster.sync()
-    // ])
+    validate()
 
-    let { sql, pool, close } = makeSqlClient(sqlUri)
+    let knex = dbFromEnvironment()
+    let app = makeServer(knex)
 
-    let r = await sql`select * from posters`
+    await startServer(app, 3000)
 
-    console.log(r)
-
-    await close()
-  } catch (err) {
-    console.log('Something went wrong', err.message)
-    console.log(err)
+    console.log('Listening on :3000')
+  } catch (error) {
+    console.log(error)
   }
 })()

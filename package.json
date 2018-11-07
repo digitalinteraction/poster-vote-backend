@@ -10,9 +10,10 @@
     "mysql": "docker run -it --rm --name dev_mysql -v mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -p 3306:3306 mysql:5.7",
     "preversion": "npm run lint -s && npm test -s && tsc && git add -A dist",
     "prettier": "prettier --write */**/*.{js,ts,json,css,md}",
-    "start": "node -r tsconfig-paths/register dist",
+    "start": "node -r tsconfig-paths/register -r dotenv/config dist",
     "test": "mocha -r ts-node/register -r tsconfig-paths/register 'spec/**/*.ts'",
-    "dev": "nodemon -w src -e ts -x ts-node -q src/index.ts"
+    "dev": "node -r ts-node/register -r tsconfig-paths/register -r dotenv/config src",
+    "watch": "nodemon -w src -e ts -x 'npm run dev' -q src/index.ts"
   },
   "author": "robb-j",
   "license": "ISC",
@@ -28,17 +29,23 @@
     ]
   },
   "dependencies": {
+    "api-formatter": "^1.0.0",
+    "body-parser": "^1.18.3",
     "chalk": "^2.4.1",
     "commander": "^2.19.0",
+    "dotenv": "^6.1.0",
     "express": "^4.16.4",
     "knex": "^0.15.2",
     "mysql": "^2.16.0",
     "sequelize": "^4.41.0",
     "sequelize-cli": "^5.2.0",
-    "tsconfig-paths": "^3.6.0"
+    "tsconfig-paths": "^3.6.0",
+    "valid-env": "^0.1.2"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.17.0",
     "@types/chai": "^4.1.7",
+    "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
     "@types/knex": "^0.14.26",
     "@types/mocha": "^5.2.5",
