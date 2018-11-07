@@ -8,10 +8,10 @@ export type RouteContext = {
   next: NextFunction
   knex: Knex
   api: Api
+  jwt: any
 }
 
 export type Route = (ctx: RouteContext) => Promise<void> | void
-export type ExpressRoute = any
 
 export type Record = WithIdentifier & WithTimestamps
 

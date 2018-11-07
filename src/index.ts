@@ -2,8 +2,30 @@ import { makeServer, startServer } from './core/server'
 import { dbFromEnvironment } from './core/db'
 
 import validateEnv = require('valid-env')
+import anisi = require('ansi-escapes')
+import { EventEmitter } from 'events'
 
-export const validate = () => validateEnv(['DB_TYPE', 'DB_URI'])
+// const clearIfDev = () =>
+//   process.env.NODE_ENV === 'development' &&
+//   process.stdout.write(anisi.clearScreen)
+//
+// clearIfDev()
+
+process.env.NODE_ENV = process.env.NODE_ENV || 'development'
+
+export const validate = () =>
+  validateEnv([
+    'DB_TYPE',
+    'DB_URI',
+    'JWT_SECRET',
+    'COOKIE_SECRET',
+    'ADMIN_EMAIL',
+    'SENDGRID_API_KEY',
+    'HASH_SECRET',
+    'PUBLIC_URL'
+  ])
+
+// Startup the app
 ;(async () => {
   try {
     validate()

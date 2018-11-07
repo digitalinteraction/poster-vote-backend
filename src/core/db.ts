@@ -3,14 +3,12 @@ import { join } from 'path'
 import * as fs from 'fs'
 import { promisify } from 'util'
 import { Record } from 'src/types'
+import { check, cross } from 'src/const'
 import chalk from 'chalk'
 import validateEnv = require('valid-env')
 
 const readdir = promisify(fs.readdir)
 const migrationTable = '_migrations'
-
-const check = chalk.green('✔')
-const cross = chalk.red('✖')
 
 type Migration = Record & {
   name: string
