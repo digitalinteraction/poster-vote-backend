@@ -6,9 +6,11 @@ export async function up(knex: Knex) {
     table.timestamps(true, true)
     table.string('question', 255)
     table.integer('code').unsigned()
+    table.string('creator_hash', 255)
     table.string('colour', 32)
     table.string('owner', 255)
     table.string('contact', 255)
+    table.boolean('active').defaultTo(true)
   })
 }
 

@@ -135,6 +135,11 @@ export class MigrationManager {
     }
   }
 
+  async regenerate(): Promise<void> {
+    await this.reset()
+    await this.sync()
+  }
+
   /** Perform a migration and write to the migrations table */
   private async doMigration(knex: Knex, migrator: Migrator) {
     await migrator.up(knex)

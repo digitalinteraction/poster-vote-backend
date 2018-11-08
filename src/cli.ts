@@ -1,6 +1,9 @@
 import * as program from 'commander'
 import * as Knex from 'knex'
-import { dbFromEnvironment, MigrationManager } from './core/db'
+import { dbFromEnvironment, MigrationManager } from 'src/core/db'
+import { makeUserJwt } from 'src/core/jwt'
+import { hashEmail } from 'src/core/emails'
+import chalk from 'chalk'
 
 let knex = dbFromEnvironment()
 
@@ -19,6 +22,18 @@ program.command('db:destroy').action(async () => {
   commandRan = true
   await migrator.reset()
   await knex.destroy()
+})
+
+program.command('db:regenerate').action(async () => {
+  commandRan = true
+  await migrator.regenerate()
+  await knex.destroy()
+})
+
+program.command('jwt:token <email>').action(async (email: string) => {
+  commandRan = true
+  let token = makeUserJwt(email)
+  console.log(chalk.green('token:'), chalk.cyan.underline(token))
 })
 
 program.parse(process.argv)

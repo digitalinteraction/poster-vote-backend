@@ -2,6 +2,7 @@ import jwtParser = require('express-jwt')
 import * as jwt from 'jsonwebtoken'
 
 import { cookieName } from 'src/const'
+import { hashEmail } from 'src/core/emails'
 
 /** Config for express-jwt to optionally verify a token from the request */
 export const jwtParserConfig: jwtParser.Options = {
@@ -34,4 +35,11 @@ export function jwtSign(payload: string | object | Buffer): string {
 
 export function jwtVerify(token: string): string | object {
   return jwt.verify(token, process.env.JWT_SECRET!)
+}
+
+export function makeUserJwt(email: string): string {
+  return jwtSign({
+    usr: hashEmail(email.toLowerCase())
+    // usr: email.toLowerCase()
+  })
 }

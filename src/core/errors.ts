@@ -34,7 +34,7 @@ export class BadRequest extends HttpError {
   }
 }
 
-type ParamsDefinition<T> = {
+type ParamDef<T> = {
   [K in keyof T]: 'string' | 'number' | 'boolean' | 'object'
 }
 
@@ -44,7 +44,7 @@ export class BadParams extends HttpError {
     super(message, 400)
   }
 
-  static check<T extends object>(body: any, args: ParamsDefinition<T>): T {
+  static check<T extends any>(body: any, args: ParamDef<T>): T {
     let missing = new Array<string>()
     for (let [key, type] of Object.entries(args)) {
       if (typeof body[key] === type) break

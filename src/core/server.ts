@@ -70,12 +70,19 @@ export function applyMiddleware(app: express.Application, knex: Knex) {
 export function applyRoutes(app: express.Application, knex: Knex) {
   const r = (route: Route) => makeRoute(route, knex)
 
-  // Add our routes
+  // Misc routes
   app.get('/', r(routes.pages.home))
 
+  // Auth routes
   app.get('/api/users', r(routes.users.me))
   app.post('/api/users', r(routes.users.request))
   app.get('/api/check', r(routes.users.check))
+
+  // Posters routes
+  app.get('/api/posters', r(routes.posters.index))
+  app.get('/api/posters/:id', r(routes.posters.show))
+  app.post('/api/posters', r(routes.posters.create))
+  app.delete('/api/posters/:id', r(routes.posters.destroy))
 }
 
 export function applyHandler(app: express.Application, knex: Knex) {
