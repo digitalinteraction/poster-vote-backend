@@ -1,0 +1,47 @@
+// Puts uploads to ~/uploads
+import * as fs from 'fs'
+import { join, extname } from 'path'
+import * as download from 'download'
+import * as childProc from 'child_process'
+import { promisify } from 'util'
+
+const exec = promisify(childProc.exec)
+
+const uploadDir = join(__dirname, '../../uploads/fsk')
+
+export function setupFskDirectories() {
+  if (fs.statSync(uploadDir).isDirectory()) return
+  fs.mkdirSync(uploadDir, { recursive: true })
+}
+
+type VoteResult = {
+  deviceId: number
+  votes: number[]
+}
+
+export async function processFile(path: string): Promise<VoteResult> {
+  const filename = new Date().toISOString() + extname(path)
+
+  // Download the file into our fsk directory
+  await download(path, uploadDir, { filename })
+
+  // Execute the fsk binary with the local file
+  let { stdout } = await exec(
+    `cat ${uploadDir}/${filename} | ${process.env.FSK_CMD}`
+  )
+
+  let [status, deviceId, ...votes] = stdout.trim().split(',')
+
+  if (status !== 'VOTES') {
+    throw new Error('Failed to parse audio')
+  }
+
+  return {
+    deviceId: parseInt(deviceId, 10),
+    votes: votes.map(str => parseInt(str, 10))
+  }
+}
+
+// processFile('http://postervote.co.uk/upload/20150813085522.wav')
+//   .then(v => console.log(v))
+//   .catch(err => console.log(err))

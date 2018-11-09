@@ -1,5 +1,6 @@
-import { makeServer, startServer } from './core/server'
-import { dbFromEnvironment } from './core/db'
+import { makeServer, startServer } from 'src/core/server'
+import { dbFromEnvironment } from 'src/core/db'
+import { setupFskDirectories } from 'src/core/fsk'
 
 import validateEnv = require('valid-env')
 import anisi = require('ansi-escapes')
@@ -29,6 +30,8 @@ export const validate = () =>
 ;(async () => {
   try {
     validate()
+
+    setupFskDirectories()
 
     let knex = dbFromEnvironment()
     let app = makeServer(knex)

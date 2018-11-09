@@ -11,6 +11,8 @@ import { RouteContext, Route } from 'src/types'
 import { cookieName } from 'src/const'
 import { Redirect, HttpError } from 'src/core/errors'
 import { jwtParserConfig } from 'src/core/jwt'
+import { makeQueries } from 'src/core/queries'
+import { makeModels } from 'src/core/model'
 
 const jwtConfig: jwtParser.Options = {
   secret: process.env.JWT_SECRET!,
@@ -44,9 +46,11 @@ type ErrorHandler = (
 const makeRoute = (route: Route, knex: Knex): express.Handler => {
   return async (req, res, next) => {
     try {
-      let jwt = (req as any).user || {}
+      let jwt = (req as any).user || undefined
       let api = (req as any).api as Api
-      await route({ req, res, next, knex, api, jwt })
+      let queries = makeQueries(knex)
+      // let models = makeModels(knex)
+      await route({ req, res, next, knex, api, jwt, queries })
     } catch (error) {
       next(error)
     }
@@ -83,6 +87,11 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   app.get('/api/posters/:id', r(routes.posters.show))
   app.post('/api/posters', r(routes.posters.create))
   app.delete('/api/posters/:id', r(routes.posters.destroy))
+
+  // IVR routes
+  app.get('/api/ivr/register/start', r(routes.ivr.registerStart))
+  app.get('/api/ivr/register/device', r(routes.ivr.registerWithDevice))
+  app.get('/api/ivr/register/finish/:poster_id', r(routes.ivr.registerFinish))
 }
 
 export function applyHandler(app: express.Application, knex: Knex) {

@@ -4,21 +4,6 @@ import { NotFound, BadParams, BadAuth } from 'src/core/errors'
 
 type PosterWithOptions = Poster & { options: PosterOption[] }
 
-const fetchPoster = async (
-  knex: Knex,
-  id: number
-): Promise<PosterWithOptions | null> => {
-  let poster = await knex('posters')
-    .where({ id, active: true })
-    .first()
-
-  if (!poster) return null
-
-  poster.options = await knex('poster_options').where('poster_id', poster.id)
-
-  return poster
-}
-
 export async function index({ api, knex, jwt }: RouteContext) {
   if (!jwt) return api.sendData([])
 
@@ -32,18 +17,18 @@ export async function index({ api, knex, jwt }: RouteContext) {
   api.sendData(posters)
 }
 
-export async function show({ req, api, knex, jwt }: RouteContext) {
+export async function show({ req, api, knex, jwt, queries }: RouteContext) {
   if (!jwt) return api.sendData([])
 
-  let poster = await fetchPoster(knex, parseInt(req.params.id, 10))
-  console.log(poster)
+  let poster = await queries.posterWithOptions(parseInt(req.params.id, 10))
   if (!poster) throw new NotFound('poster not found')
 
   api.sendData(poster)
 }
 
-export async function create({ req, api, knex, jwt }: RouteContext) {
+export async function create({ req, api, knex, jwt, queries }: RouteContext) {
   if (!jwt) throw new BadAuth()
+
   type Params = { question: string; options: string[] }
   let { question, options } = BadParams.check<Params>(req.body, {
     question: 'string',
@@ -81,7 +66,7 @@ export async function create({ req, api, knex, jwt }: RouteContext) {
 
     await trx('poster_options').insert(optionRecords)
 
-    return await fetchPoster(trx, id)
+    return await queries.with(trx).posterWithOptions(id)
   })
 
   api.sendData(poster)
