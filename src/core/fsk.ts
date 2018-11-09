@@ -15,12 +15,12 @@ export function setupFskDirectories() {
 }
 
 type VoteResult = {
-  deviceId: number
+  uuid: number
   votes: number[]
 }
 
-export async function processFile(path: string): Promise<VoteResult> {
-  const filename = new Date().toISOString() + extname(path)
+export async function processFskFile(path: string): Promise<VoteResult> {
+  const filename = new Date().toISOString() + (extname(path) || '.wav')
 
   // Download the file into our fsk directory
   await download(path, uploadDir, { filename })
@@ -37,11 +37,11 @@ export async function processFile(path: string): Promise<VoteResult> {
   }
 
   return {
-    deviceId: parseInt(deviceId, 10),
+    uuid: parseInt(deviceId, 10),
     votes: votes.map(str => parseInt(str, 10))
   }
 }
 
-// processFile('http://postervote.co.uk/upload/20150813085522.wav')
+// processFskFile('http://postervote.co.uk/upload/20150813085522.wav')
 //   .then(v => console.log(v))
 //   .catch(err => console.log(err))

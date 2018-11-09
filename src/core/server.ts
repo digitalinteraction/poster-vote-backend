@@ -87,11 +87,14 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   app.get('/api/posters/:id', r(routes.posters.show))
   app.post('/api/posters', r(routes.posters.create))
   app.delete('/api/posters/:id', r(routes.posters.destroy))
+  app.get('/api/posters/:id/votes', r(routes.posters.votes))
 
   // IVR routes
   app.get('/api/ivr/register/start', r(routes.ivr.registerStart))
-  app.get('/api/ivr/register/device', r(routes.ivr.registerWithDevice))
+  app.get('/api/ivr/register/poster', r(routes.ivr.registerWithDigits))
   app.get('/api/ivr/register/finish/:poster_id', r(routes.ivr.registerFinish))
+  app.get('/api/ivr/vote/start', r(routes.ivr.voteStart))
+  app.get('/api/ivr/vote/finish', r(routes.ivr.voteFinish))
 }
 
 export function applyHandler(app: express.Application, knex: Knex) {

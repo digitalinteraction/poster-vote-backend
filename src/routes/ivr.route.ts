@@ -1,11 +1,28 @@
-import { RouteContext, Device, Poster } from 'src/types'
+import { RouteContext, Device, Poster, DevicePoster } from 'src/types'
+import { Table } from 'src/const'
 
-import { processFile } from 'src/core/fsk'
+import { processFskFile } from 'src/core/fsk'
 
 import * as express from 'express'
-import { twiml } from 'twilio'
+import { twiml, TwimlInterface } from 'twilio'
+import * as VoiceResponse from 'twilio/lib/twiml/VoiceResponse'
+import { PosterWithOptions } from 'src/core/queries'
+
+//-
+//- Utils
+//-
 
 const publicUrl = process.env.PUBLIC_URL!
+
+const submitMsg = `After the beep place the bottom of your phone near the speaker and hold the first two poster buttons until it beeps.`
+
+const ivrUrl = (path: string) => `/api/ivr/${path}`
+
+const speakableNumber = (number: number) =>
+  number
+    .toString()
+    .split('')
+    .join(' ')
 
 function setupForTwiml(res: express.Response) {
   res.header('content-type', 'text/xml')
@@ -14,16 +31,36 @@ function setupForTwiml(res: express.Response) {
   res.header('Content-Type', 'application/xml')
 }
 
-const ivrUrl = (path: string) => `${process.env.PUBLIC_URL!}/api/ivr/${path}`
-
-// api/ivr/register/twiml
-export function registerStart({ res }: RouteContext) {
+function sendTwiml(res: express.Response, voice: VoiceResponse): void {
   setupForTwiml(res)
+  res.send(voice.toString())
+}
 
-  let response = new twiml.VoiceResponse()
-  let gather = response.gather({
+function makeCountRecords(
+  poster: PosterWithOptions,
+  votes: number[],
+  devicePosterId: number
+) {
+  let optionIds = poster.options.map(o => o.id)
+  return votes
+    .filter((count, index) => optionIds[index])
+    .map((count, index) => ({
+      value: count,
+      poster_option_id: optionIds[index],
+      device_poster_id: devicePosterId
+    }))
+}
+
+//-
+//- Register endpoints
+//-
+
+// GET /api/ivr/register/start
+export function registerStart({ res }: RouteContext) {
+  const voice = new twiml.VoiceResponse()
+  const gather = voice.gather({
     method: 'GET',
-    action: ivrUrl('register/submit'),
+    action: ivrUrl('register/poster'),
     timeout: 10
   })
 
@@ -31,44 +68,42 @@ export function registerStart({ res }: RouteContext) {
     'Welcome to poster vote device registration. Please enter the poster number followed by the pound sign.'
   )
 
-  res.send(response.toString())
+  sendTwiml(res, voice)
 }
 
-// api/ivr/register/device
-export async function registerWithDevice({ req, res, knex }: RouteContext) {
-  setupForTwiml(res)
-
+// GET /api/ivr/register/poster
+export async function registerWithDigits({ req, res, knex }: RouteContext) {
   // Start a twiml response
-  let response = new twiml.VoiceResponse()
-  let posterId = req.query.Digits as string
+  const voice = new twiml.VoiceResponse()
+  const posterId = req.query.Digits && parseInt(req.query.Digits, 10)
 
   // Fail if there isn't a ?Digits url parameter
-  if (!posterId) {
-    response.say('No poster entered, please try again.')
-    return res.send(response.toString())
+  if (posterId === undefined) {
+    voice.say('No poster entered, please try again.')
+    voice.redirect({ method: 'GET' }, ivrUrl('register/start'))
+    return sendTwiml(res, voice)
   }
 
   // Tell them what they entered
-  response.say(`You entered ${posterId}.`)
+  voice.say(`You entered ${speakableNumber(posterId)}.`)
 
   // Find the associated poster
-  let poster: Poster = await knex('posters')
+  let poster: Poster = await knex(Table.poster)
     .where({ code: posterId })
     .first()
 
   // Fail if we can't find a poster
   if (!poster) {
-    response.say(`We couldn't find that poster, please try again.`)
-    return res.send(response.toString())
+    voice.say(`We couldn't find that poster, please try again.`)
+    voice.redirect({ method: 'GET' }, ivrUrl('register/start'))
+    return sendTwiml(res, voice)
   }
 
   // Give them instructions
-  response.say(
-    'After the beep place the bottom of your phone close to the speaker and press the first two buttonns at the same time'
-  )
+  voice.say(submitMsg)
 
   // Ask them to record a sound
-  let record = response.record({
+  const record = voice.record({
     action: ivrUrl(`register/finish/${poster.id}`),
     method: 'GET',
     playBeep: true,
@@ -79,32 +114,155 @@ export async function registerWithDevice({ req, res, knex }: RouteContext) {
   })
 
   // Fail if they didn't record anything
-  response.say('No recording, please try again')
+  voice.say(`Sorry I didn't catch that, please try again`)
 
   // Return the twiml
-  res.send(response.toString())
+  return sendTwiml(res, voice)
 }
 
-// api/ivr/register/finish/:poster_id?RecordingUrl
-export async function registerFinish({ req, res, knex }: RouteContext) {
-  setupForTwiml(res)
+// GET /api/ivr/register/finish/:poster_id?RecordingUrl
+export async function registerFinish({
+  req,
+  res,
+  knex,
+  queries
+}: RouteContext) {
+  const posterId = parseInt(req.params.poster_id, 10)
+  const recordingUrl = req.query.RecordingUrl as string
 
-  let posterId = parseInt(req.params.poster_id, 10)
-  let recordingUrl = req.query.RecordingUrl as string
-
-  let response = new twiml.VoiceResponse()
-
-  if (Number.isNaN(posterId) || !recordingUrl) {
-    response.say('Something went wrong, please try again.')
-    return res.send(response.toString())
-  }
+  const voice = new twiml.VoiceResponse()
 
   try {
-    let result = await processFile(recordingUrl)
-    response.say(JSON.stringify(result))
-    res.send(response.toString())
+    if (Number.isNaN(posterId) || !recordingUrl) {
+      voice.say('Something went wrong, please try again.')
+      voice.redirect({ method: 'GET' }, ivrUrl('register/poster'))
+      return sendTwiml(res, voice)
+    }
+
+    const poster = await queries.posterWithOptions(posterId)
+
+    console.log({ poster })
+
+    if (!poster) {
+      voice.say(`We couldn't find that poster, please try again.`)
+      // Don't redirect as they can't have got here from twilio
+      return sendTwiml(res, voice)
+    }
+
+    // Process the audio file
+    const { uuid, votes } = await processFskFile(recordingUrl)
+
+    // See if the device already exists
+    let device: Device = await knex(Table.device)
+      .where({ uuid })
+      .first()
+
+    // Create the device if not found
+    if (!device) {
+      const [id] = await knex(Table.device).insert({ uuid })
+      device = await knex(Table.device)
+        .select('*')
+        .where({ id })
+        .first()
+    }
+
+    // Create the relation to the poster
+    const [devicePosterId] = await knex(Table.devicePoster).insert({
+      poster_id: posterId,
+      device_id: device.id
+    })
+
+    // Store the counts
+    await knex(Table.deviceCount).insert(
+      makeCountRecords(poster, votes, devicePosterId)
+    )
+
+    // Let them know it was a success
+    voice.say('Thank you, Your device has been registered with that poster.')
   } catch (error) {
-    response.say(`We couldn't processes that, please try again`)
-    return res.send(response.toString())
+    console.log(error)
+    voice.say(`Sorry, we couldn't process that, please try again.`)
   }
+
+  return sendTwiml(res, voice)
+}
+
+//-
+//- Vote endpoints
+//-
+
+// GET /api/ivr/vote/start
+export function voteStart({ req, res, knex }: RouteContext) {
+  const voice = new twiml.VoiceResponse()
+
+  voice.say('Welcome to poster vote.')
+  voice.say(submitMsg)
+  voice.record({
+    action: ivrUrl('vote/finish'),
+    method: 'GET',
+    playBeep: true,
+    maxLength: 23,
+    timeout: 23,
+    trim: 'do-not-trim',
+    finishOnKey: '#'
+  })
+
+  sendTwiml(res, voice)
+}
+
+// GET /api/ivr/vote/finish
+export async function voteFinish({ req, res, knex, queries }: RouteContext) {
+  const recordingUrl = req.query.RecordingUrl as string
+  const voice = new twiml.VoiceResponse()
+
+  try {
+    // Fail if no recording was provided
+    if (!recordingUrl) {
+      throw new Error('No recording provided')
+    }
+
+    // Process the audio
+    let { uuid, votes } = await processFskFile(recordingUrl)
+
+    // Fetch the device or fail
+    let device: Device = await knex(Table.device)
+      .where({ uuid })
+      .first()
+    if (!device) throw new Error('Device not found')
+
+    // Fetch the relation of fail
+    let devicePoster: DevicePoster = await knex(Table.devicePoster)
+      .where('device_id', device.id)
+      .orderBy('created_at', 'desc')
+      .first()
+    if (!devicePoster) throw new Error('Poster not registered')
+
+    // Fetch the poster of fail
+    let poster = await queries.posterWithOptions(devicePoster.poster_id)
+    if (!poster) throw new Error('Poster not found')
+
+    // Store the votes
+    await knex(Table.deviceCount).insert(
+      makeCountRecords(poster, votes, devicePoster.id)
+    )
+
+    // Send sms confirmation with the votes in
+    let finalVotes = await queries.posterVotes(poster.id)
+    let smsLines = ['PosterVote result:']
+    smsLines.push(`Q: ${poster.question}`)
+    poster.options.forEach((option, index) => {
+      smsLines.push(`${index + 1}. ${option.text} (${finalVotes[index].vote})`)
+    })
+
+    // TODO: Add url-shortened link to view poster online
+
+    voice.say(`The poster's votes have been recorded, thank you`)
+    voice.sms(smsLines.join('\n'))
+  } catch (error) {
+    console.log(error)
+    voice.say(`Sorry, we couldn't process that, starting again.`)
+    voice.redirect({ method: 'GET' }, ivrUrl('vote/start'))
+  }
+
+  sendTwiml(res, voice)
 }

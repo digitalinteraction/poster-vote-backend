@@ -4,7 +4,7 @@ export async function up(knex: Knex) {
   await knex.schema.createTable('devices', table => {
     table.increments()
     table.timestamps(true, true)
-    table.integer('registration_id').unsigned()
+    table.integer('uuid').unsigned()
   })
 
   await knex.schema.createTable('device_poster', table => {

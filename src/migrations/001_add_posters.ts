@@ -4,6 +4,7 @@ export async function up(knex: Knex) {
   await knex.schema.createTable('posters', table => {
     table.increments()
     table.timestamps(true, true)
+    table.string('name', 255)
     table.string('question', 255)
     table.integer('code').unsigned()
     table.string('creator_hash', 255)

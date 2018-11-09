@@ -6,8 +6,10 @@ export async function up(knex: Knex) {
     table.timestamps(true, true)
     table.integer('value').unsigned()
     table.integer('poster_option_id').unsigned()
+    table.integer('device_poster_id').unsigned()
 
     table.foreign('poster_option_id').references('poster_options.id')
+    table.foreign('device_poster_id').references('device_poster.id')
   })
 }
 

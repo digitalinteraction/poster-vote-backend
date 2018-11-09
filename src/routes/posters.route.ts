@@ -4,6 +4,7 @@ import { NotFound, BadParams, BadAuth } from 'src/core/errors'
 
 type PosterWithOptions = Poster & { options: PosterOption[] }
 
+// GET api/posters
 export async function index({ api, knex, jwt }: RouteContext) {
   if (!jwt) return api.sendData([])
 
@@ -17,6 +18,7 @@ export async function index({ api, knex, jwt }: RouteContext) {
   api.sendData(posters)
 }
 
+// GET api/posters/:id
 export async function show({ req, api, knex, jwt, queries }: RouteContext) {
   if (!jwt) return api.sendData([])
 
@@ -26,11 +28,13 @@ export async function show({ req, api, knex, jwt, queries }: RouteContext) {
   api.sendData(poster)
 }
 
+// POST api/posters
 export async function create({ req, api, knex, jwt, queries }: RouteContext) {
   if (!jwt) throw new BadAuth()
 
-  type Params = { question: string; options: string[] }
-  let { question, options } = BadParams.check<Params>(req.body, {
+  type Params = { name: string; question: string; options: string[] }
+  let { name, question, options } = BadParams.check<Params>(req.body, {
+    name: 'string',
     question: 'string',
     options: 'object'
   })
@@ -50,6 +54,7 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
 
   let poster = await knex.transaction(async trx => {
     const [id] = await trx('posters').insert({
+      name,
       question,
       code,
       colour,
@@ -72,6 +77,7 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
   api.sendData(poster)
 }
 
+// DELETE api/posters
 export async function destroy({ req, jwt, knex, api }: RouteContext) {
   if (!jwt) throw new BadAuth()
 
@@ -86,4 +92,13 @@ export async function destroy({ req, jwt, knex, api }: RouteContext) {
     .update({ active: false })
 
   api.sendData('ok')
+}
+
+// GET api/posters/:id/votes
+export async function votes({ req, api, queries }: RouteContext) {
+  let id = parseInt(req.params.id, 10)
+  if (Number.isNaN(id)) throw BadParams.shouldBe('id', 'number')
+
+  // Fetch & send the votes
+  api.sendData(await queries.posterVotes(id))
 }
