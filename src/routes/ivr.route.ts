@@ -141,8 +141,6 @@ export async function registerFinish({
 
     const poster = await queries.posterWithOptions(posterId)
 
-    console.log({ poster })
-
     if (!poster) {
       voice.say(`We couldn't find that poster, please try again.`)
       // Don't redirect as they can't have got here from twilio
@@ -178,7 +176,7 @@ export async function registerFinish({
     )
 
     // Let them know it was a success
-    voice.say('Thank you, Your device has been registered with that poster.')
+    voice.say('Thank you, your device has been registered with that poster.')
   } catch (error) {
     console.log(error)
     voice.say(`Sorry, we couldn't process that, please try again.`)
@@ -256,7 +254,9 @@ export async function voteFinish({ req, res, knex, queries }: RouteContext) {
 
     // TODO: Add url-shortened link to view poster online
 
-    voice.say(`The poster's votes have been recorded, thank you`)
+    voice.say(
+      `We have recorded the poster's votes and we will send you an SMS with the results, thank you.`
+    )
     voice.sms(smsLines.join('\n'))
   } catch (error) {
     console.log(error)
