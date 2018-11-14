@@ -1,6 +1,6 @@
 import * as Knex from 'knex'
-import { RouteContext, Poster, PosterOption } from 'src/types'
-import { NotFound, BadParams, BadAuth } from 'src/core/errors'
+import { RouteContext, Poster, PosterOption } from 'server/types'
+import { NotFound, BadParams, BadAuth } from 'server/core/errors'
 
 type PosterWithOptions = Poster & { options: PosterOption[] }
 

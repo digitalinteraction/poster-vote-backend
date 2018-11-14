@@ -3,11 +3,11 @@
     "target": "es2017",
     "module": "commonjs",
     "baseUrl": ".",
-    "outDir": "dist",
+    "outDir": "dist/server",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true
   },
-  "include": ["src/**/*.ts", "tools/**/*.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "include": ["server/**/*.ts", "tools/**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts", "dist", ".cache", "uploads"]
 }

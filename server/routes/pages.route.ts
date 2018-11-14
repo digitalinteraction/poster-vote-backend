@@ -1,4 +1,4 @@
-import { RouteContext } from 'src/types'
+import { RouteContext } from 'server/types'
 
 export function home({ jwt, res, req }: RouteContext) {
   res.render('pages/home', {

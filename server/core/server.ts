@@ -1,3 +1,5 @@
+import { join } from 'path'
+
 import * as express from 'express'
 import * as routes from '../routes'
 import * as Knex from 'knex'
@@ -7,34 +9,12 @@ import cookieParser = require('cookie-parser')
 import jwtParser = require('express-jwt')
 import escapeStringRegexp = require('escape-string-regexp')
 
-import { RouteContext, Route } from 'src/types'
-import { cookieName } from 'src/const'
-import { Redirect, HttpError } from 'src/core/errors'
-import { jwtParserConfig } from 'src/core/jwt'
-import { makeQueries } from 'src/core/queries'
-import { makeModels } from 'src/core/model'
-
-const jwtConfig: jwtParser.Options = {
-  secret: process.env.JWT_SECRET!,
-  credentialsRequired: false,
-  getToken(req) {
-    let { headers = {}, signedCookies = {}, query = {} } = req
-
-    // Try a signed cookie
-    if (signedCookies[cookieName]) {
-      return req.signedCookies[cookieName]
-    }
-
-    // Try an auth header, Authorization: Bearer
-    if (headers.authorization && headers.authorization.startsWith('Bearer ')) {
-      return headers.authorization.split(' ')[1]
-    }
-
-    // Try the query string, ?token=
-    if (query.token) return query.token
-    return null
-  }
-}
+import { RouteContext, Route } from 'server/types'
+import { cookieName } from 'server/const'
+import { Redirect, HttpError } from 'server/core/errors'
+import { jwtParserConfig } from 'server/core/jwt'
+import { makeQueries } from 'server/core/queries'
+import { makeModels } from 'server/core/model'
 
 type ErrorHandler = (
   err: any,
@@ -68,14 +48,11 @@ export function applyMiddleware(app: express.Application, knex: Knex) {
   app.use(bodyParser.json())
   app.use(cookieParser(process.env.COOKIE_SECRET!))
   app.use(Api.middleware({}))
-  app.use(jwtParser(jwtConfig))
+  app.use(jwtParser(jwtParserConfig))
 }
 
 export function applyRoutes(app: express.Application, knex: Knex) {
   const r = (route: Route) => makeRoute(route, knex)
-
-  // Misc routes
-  app.get('/', r(routes.pages.home))
 
   // Auth routes
   app.get('/api/users', r(routes.users.me))
@@ -95,6 +72,10 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   app.get('/api/ivr/register/finish/:poster_id', r(routes.ivr.registerFinish))
   app.get('/api/ivr/vote/start', r(routes.ivr.voteStart))
   app.get('/api/ivr/vote/finish', r(routes.ivr.voteFinish))
+
+  // Misc routes
+  app.get('/', r(routes.pages.home))
+  app.use('/dist', express.static('dist/frontend'))
 }
 
 export function applyHandler(app: express.Application, knex: Knex) {
@@ -131,7 +112,11 @@ export function applyHandler(app: express.Application, knex: Knex) {
 export function makeServer(knex: Knex): express.Application {
   let app = express()
   app.set('trust proxy', 1)
+
+  // Setup rendering
+  app.set('views', join(__dirname, '../views'))
   app.set('view engine', 'pug')
+  app.locals = {}
 
   applyMiddleware(app, knex)
   applyRoutes(app, knex)

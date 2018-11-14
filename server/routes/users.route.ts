@@ -1,8 +1,8 @@
-import { RouteContext } from 'src/types'
-import { cookieName } from 'src/const'
-import { BadParams, Redirect } from 'src/core/errors'
-import { isEmail, hashEmail, sendgrid } from 'src/core/emails'
-import { jwtSign, jwtVerify, makeUserJwt } from 'src/core/jwt'
+import { RouteContext } from 'server/types'
+import { cookieName } from 'server/const'
+import { BadParams, Redirect } from 'server/core/errors'
+import { isEmail, hashEmail, sendgrid } from 'server/core/emails'
+import { jwtSign, jwtVerify, makeUserJwt } from 'server/core/jwt'
 
 export async function me({ api, jwt }: RouteContext) {
   api.sendData({ usr: jwt ? jwt.usr : null })

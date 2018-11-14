@@ -1,12 +1,12 @@
-import { RouteContext, Device, Poster, DevicePoster } from 'src/types'
-import { Table } from 'src/const'
+import { RouteContext, Device, Poster, DevicePoster } from 'server/types'
+import { Table } from 'server/const'
 
-import { processFskFile } from 'src/core/fsk'
+import { processFskFile } from 'server/core/fsk'
 
 import * as express from 'express'
 import { twiml, TwimlInterface } from 'twilio'
 import * as VoiceResponse from 'twilio/lib/twiml/VoiceResponse'
-import { PosterWithOptions } from 'src/core/queries'
+import { PosterWithOptions } from 'server/core/queries'
 
 //-
 //- Utils

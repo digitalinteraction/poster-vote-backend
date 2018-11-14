@@ -1,8 +1,8 @@
 import jwtParser = require('express-jwt')
 import * as jwt from 'jsonwebtoken'
 
-import { cookieName } from 'src/const'
-import { hashEmail } from 'src/core/emails'
+import { cookieName } from 'server/const'
+import { hashEmail } from 'server/core/emails'
 
 /** Config for express-jwt to optionally verify a token from the request */
 export const jwtParserConfig: jwtParser.Options = {
