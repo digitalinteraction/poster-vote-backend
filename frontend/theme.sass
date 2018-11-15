@@ -1,13 +1,17 @@
 // https://coolors.co/ef6f6c-465775-56e39f-59c9a5-5b6c5d
 
 $primary: #465775
-$link: #56e39f
-$info: #59c9a4
+$link: #59c9a4
+$info: #5c6c5e
 $danger: #ef6f6c
 $body-family: Lato, sans-serif
 $family-monospace: 'SF Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace
 
 @import ~bulma
+
+.button.is-text.no-underline
+  text-decoration: none
+  font-weight: 600
 
 // A pretty-ish placeholder image
 .image.placeholder
@@ -36,3 +40,48 @@ $family-monospace: 'SF Mono', Consolas, 'Liberation Mono', Menlo, Courier, monos
   display: flex
   flex-direction: column
   justify-content: center
+
+.poster-cell
+  overflow: hidden
+  border-radius: 1em
+  color: white
+  
+  $poster-pad: 1rem
+  
+  .poster-head
+    background-color: rgba(0,0,0,0.2)
+    padding: 0 $poster-pad
+    font-size: 1.3em
+    font-weight: 600
+    display: flex
+    justify-content: space-between
+  .poster-body
+    padding: 0.5rem $poster-pad
+    height: 5em
+    overflow: hidden
+    text-overflow: ellipsis
+    font-size: 1.5em
+    font-weight: 300
+  .poster-foot
+    margin: 0 $poster-pad 1rem
+
+.toolbar
+  padding: 0.5rem 0
+  background-color: $light
+  border-bottom: 1px solid rgba(0,0,0,0.05)
+  
+  +touch
+    padding: 0.5rem 1.5rem
+  
+  .toolbar-body
+    display: flex
+    justify-content: space-between
+    align-items: center
+    
+    +mobile
+      .toolbar-item.is-optional
+        display: none
+    .toolbar-item:not(:last-child)
+      margin-right: 1em
+    .toolbar-seperator
+      flex: 1

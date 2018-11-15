@@ -4,10 +4,10 @@ import * as express from 'express'
 import * as routes from '../routes'
 import * as Knex from 'knex'
 import { Api } from 'api-formatter'
-import bodyParser = require('body-parser')
-import cookieParser = require('cookie-parser')
-import jwtParser = require('express-jwt')
-import escapeStringRegexp = require('escape-string-regexp')
+import * as bodyParser from 'body-parser'
+import * as cookieParser from 'cookie-parser'
+import * as jwtParser from 'express-jwt'
+import * as escapeStringRegexp from 'escape-string-regexp'
 
 import { RouteContext, Route } from 'server/types'
 import { cookieName } from 'server/const'
@@ -57,6 +57,7 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   // Auth routes
   app.get('/api/users', r(routes.users.me))
   app.post('/api/users', r(routes.users.request))
+  app.delete('/api/users', r(routes.users.logout))
   app.get('/api/check', r(routes.users.check))
 
   // Posters routes
@@ -75,6 +76,7 @@ export function applyRoutes(app: express.Application, knex: Knex) {
 
   // Misc routes
   app.get('/', r(routes.pages.home))
+  app.get('/posters', r(routes.pages.posters))
   app.use('/dist', express.static('dist/frontend'))
 }
 

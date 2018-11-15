@@ -16,7 +16,7 @@ export async function request({ req, res, api }: RouteContext) {
 
   let token = makeUserJwt(email)
 
-  let loginUrl = `${process.env.PUBLIC_URL}/check?token=${token}`
+  let loginUrl = `${process.env.PUBLIC_URL}/api/check?token=${token}`
   let [username] = email.split('@')
 
   let emailHtml = await new Promise<string>((resolve, reject) => {
@@ -45,7 +45,7 @@ export function check({ req, res }: RouteContext) {
 
   res.cookie(cookieName, jwtSign({ usr }), { signed: true })
 
-  throw new Redirect('/')
+  throw new Redirect('/posters')
 }
 
 export function logout({ req, res }: RouteContext) {

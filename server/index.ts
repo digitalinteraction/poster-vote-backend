@@ -4,7 +4,7 @@ import { setupFskDirectories } from 'server/core/fsk'
 import { startBundler } from './dev'
 
 import validateEnv = require('valid-env')
-import anisi = require('ansi-escapes')
+import * as anisi from 'ansi-escapes'
 import { EventEmitter } from 'events'
 
 // const clearIfDev = () =>

@@ -1,4 +1,4 @@
-import jwtParser = require('express-jwt')
+import * as jwtParser from 'express-jwt'
 import * as jwt from 'jsonwebtoken'
 
 import { cookieName } from 'server/const'
