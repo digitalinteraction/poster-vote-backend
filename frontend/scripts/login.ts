@@ -9,11 +9,7 @@ function resetMessage(elem: Element) {
 function setMessage(elem: Element, email: string) {
   console.log('#setMessage')
   elem.innerHTML = `
-  <article class="message is-success is-small">
-    <div class="message-body">
-      We've sent an email to '${email}', check your email for a login link
-    </div>
-  </article>`
+  <div>We've sent an email to '${email}', check your email for a login link</div>`
 }
 
 let loginForm = document.getElementById('loginForm') as HTMLDivElement

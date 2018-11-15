@@ -4,7 +4,6 @@ import { Table } from 'server/const'
 
 export function home({ jwt, res, req }: RouteContext) {
   // if (jwt) throw new Redirect('/posters')
-  console.log(jwt !== undefined)
 
   res.render('pages/home', {
     title: 'Home',
