@@ -13,70 +13,80 @@ export function on<T extends Event = Event, U extends Element = Element>(
 
 export const isEmail = (str: string) => /^\S+@\S+$/.test(str)
 
-type Stateful = { [idx: string]: any }
+const isObservableSymbol = Symbol('Observed.isObservable')
+const nextEffectSymbol = Symbol('Observed.nextEffect')
+const effectsSymbol = Symbol('Observed.effects')
+
+type Stateful = {
+  [idx: string]: any
+}
 type Effect<S extends Stateful> = (state: S) => void
 type EffectMap<S extends Stateful> = { [K in keyof S]: Effect<S>[] }
-type Locks<S extends Stateful> = { [K in keyof S]: boolean }
 
-let isObservable = Symbol('Observed.isObservable')
-let nextEffect = Symbol('Observed.nextEffect')
-
-type Observed<S extends Stateful> = S & {
-  nextEffect?: Effect<S>
-  effects: EffectMap<S>
-  // locks: Locks<S>
+type Observable<S extends Stateful> = S & {
+  [isObservableSymbol]: boolean
+  [nextEffectSymbol]?: Effect<S>
+  [effectsSymbol]: EffectMap<S>
 }
 
 export function withObservable<S extends Stateful, U>(
   state: S,
-  block: (o: Observed<S>) => U
+  block: (o: Observable<S>) => U
 ): U | undefined {
-  if ((state as any)[isObservable] !== true) return
+  if ((state as Observable<S>)[isObservableSymbol] !== true) return
   return block(state as any)
 }
 
-// export function withNextEffect<S extends Stateful, U>(
-//   state: S,
-//   block: (effect: Effect<S>) => U
-// ): U | undefined {
-//   let effect = (state as any)[nextEffect] as any
-//   if (effect === undefined) return
-//   return block(state[effect])
-// }
+export function withNextEffect<S extends Stateful, U>(
+  state: S,
+  block: (effect: Effect<S>) => U
+) {
+  return withObservable(state, state => {
+    const effect = state[nextEffectSymbol]
+    return effect && block(effect)
+  })
+}
+
+export function withEffects<S extends Stateful, U>(
+  state: S,
+  prop: keyof S,
+  block: (effects: Effect<S>[]) => U
+) {
+  return withObservable(state, state => {
+    const effects = state[effectsSymbol][prop]
+    return effects && block(effects)
+  })
+}
 
 export function makeState<S extends Stateful>(initial: S): S {
   // Create an object to store effects
   let effects: EffectMap<S> = {} as any
   for (let key in initial) effects[key] = []
 
-  // Create locks
-  // let locks: Locks<S> = {} as any
-  // for (let key in initial) locks[key] = false
-
   // Create our new state, with the effects
-  let state: Observed<S> = Object.assign({ effects }, initial)
-  ;(state as any)[isObservable] = true
+  let base = {
+    [isObservableSymbol]: true,
+    [effectsSymbol]: effects
+  }
+  let state: Observable<S> = Object.assign(base, initial)
 
   // Create a proxy to register effects
-  let proxy = new Proxy<Observed<S>>(state, {
+  let proxy = new Proxy(state as S, {
     get(target: S, prop: keyof S) {
       // Register the effect
-      if (
-        state.nextEffect &&
-        state.effects[prop] &&
-        !state.effects[prop].includes(state.nextEffect)
-      ) {
-        target.effects[prop].push(state.nextEffect)
-      }
+      withNextEffect(target, nextEffect => {
+        let effects = state[effectsSymbol][prop]
+        if (!effects || effects.includes(nextEffect)) return
+        effects.push(nextEffect)
+      })
       return (target as any)[prop]
     },
-    set(target: S, prop: keyof S, value) {
-      ;(target as any)[prop] = value
+    set(target, prop: keyof S, value) {
+      target[prop] = value
 
-      // Trigger effects
-      if (state.effects[prop]) {
-        state.effects[prop].forEach(effect => effect(target))
-      }
+      withEffects(target, prop, effects => {
+        effects.forEach(effect => effect(target))
+      })
       return true
     }
   })
@@ -87,28 +97,28 @@ export function makeState<S extends Stateful>(initial: S): S {
 type Computed<S, V> = (state: S) => V
 type ComputedDef<S extends Stateful, C> = { [K in keyof C]: Computed<S, C[K]> }
 
-export function computeProps<S extends Stateful, C extends Stateful>(
-  state: S,
-  computed: ComputedDef<S, C>
-): C {
-  let computedState = {} as C
-
-  for (let key in computed) {
-    useEffect(state, state => {
-      computedState[key] = computed[key](state)
-    })
-  }
-
-  computedState = makeState(computedState)
-
-  return computedState
-}
+// export function computeProps<S extends Stateful, C extends Stateful>(
+//   state: S,
+//   computed: ComputedDef<S, C>
+// ): C {
+//   let computedState = {} as C
+//
+//   for (let key in computed) {
+//     useEffect(state, state => {
+//       computedState[key] = computed[key](state)
+//     })
+//   }
+//
+//   computedState = makeState(computedState)
+//
+//   return computedState
+// }
 
 export function useEffect<S extends Stateful>(state: S, effect: Effect<S>) {
   withObservable(state, observed => {
-    observed.nextEffect = effect
+    observed[nextEffectSymbol] = effect
     effect(state)
-    observed.nextEffect = undefined
+    delete observed[nextEffectSymbol]
   })
 }
 
@@ -129,10 +139,9 @@ export function makeFsm<S extends Stateful, K extends keyof S, F extends S[K]>(
   useEffect(state, state => {
     if (current) fsm[current].leave()
     current = state[key]
+    delete (state as any)[nextEffectSymbol]
     fsm[current!].enter()
   })
-
-  // NOTE: Possible issue with first state.enter registering an effect
 }
 
 function domRender(name: string, attrs: any, ...children: any[]): HTMLElement {
