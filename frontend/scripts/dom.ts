@@ -13,122 +13,69 @@ export function on<T extends Event = Event, U extends Element = Element>(
 
 export const isEmail = (str: string) => /^\S+@\S+$/.test(str)
 
-// type R<E extends Element> = [string, number]
+type Stateful = { [idx: string]: any }
+type Effect<S extends Stateful> = (state: S) => void
+type EffectMap<S extends Stateful> = { [K in keyof S]: Effect<S>[] }
+type Locks<S extends Stateful> = { [K in keyof S]: boolean }
 
-export function bind<E extends Element, S extends object>(
-  id: string,
-  initial: S,
-  update: (elem: E, state: S) => void
-): [E, S] {
-  const elem: E = document.getElementById(id) as any
-  if (!elem) throw new Error(`Invalid element #${id}`)
+let isObservable = Symbol('Observed.isObservable')
+let nextEffect = Symbol('Observed.nextEffect')
 
-  const state = Object.assign({}, initial)
-  const boundState: any = {}
-
-  const updateElem = () => update(elem, boundState)
-
-  for (let key in initial) {
-    Object.defineProperty(boundState, key, {
-      get: () => state[key],
-      set: (v: any) => ((state[key] = v), updateElem())
-    })
-  }
-
-  updateElem()
-
-  return [elem, boundState]
+type Observed<S extends Stateful> = S & {
+  nextEffect?: Effect<S>
+  effects: EffectMap<S>
+  // locks: Locks<S>
 }
 
-// type StateDef<T> = { [K in keyof T]: T | ((state: T) => T[K]) }
+export function withObservable<S extends Stateful, U>(
+  state: S,
+  block: (o: Observed<S>) => U
+): U | undefined {
+  if ((state as any)[isObservable] !== true) return
+  return block(state as any)
+}
 
-type ObserverMap<S> = { [K in keyof S]: Observation<S[K]>[] }
-
-type Observation<V> = (value: V) => void
-
-type Binder<T, U> = (state: State<T>) => U
-
-// type BoundState<T, K2 extends string, V> = {
-//   [K in keyof T]: T[K],
-//   [idx, K2]: V
+// export function withNextEffect<S extends Stateful, U>(
+//   state: S,
+//   block: (effect: Effect<S>) => U
+// ): U | undefined {
+//   let effect = (state as any)[nextEffect] as any
+//   if (effect === undefined) return
+//   return block(state[effect])
 // }
 
-export class State<T> {
-  private internal: T
-  public observers: ObserverMap<T> = {} as any
-
-  static create<T>(initial: T): State<T> & T {
-    return new State(initial) as any
-  }
-
-  constructor(initial: T) {
-    this.internal = Object.assign({}, initial)
-
-    for (let key in initial) {
-      this.observers[key] = []
-
-      Object.defineProperty(this, key, {
-        get() {
-          return this.internal
-        },
-        set(v) {
-          this.internal[key] = v
-          this.observeChange(key, v)
-        }
-      })
-    }
-  }
-
-  private observeChange<K extends keyof T>(key: K, value: any) {
-    this.observers[key].forEach(obs => obs(value))
-  }
-
-  public observe<K extends keyof T>(key: K, observer: Observation<T[K]>) {
-    this.observers[key].push(observer)
-  }
-
-  // public bind<K extends string, V>(
-  //   key: K,
-  //   binder: Binder<T, V>
-  // ): State<T> & { K: V } {
-  //   return this
-  // }
-}
-
-type SomeKey = string | number | Symbol
-
-type EffectMap<T> = { [K in keyof T]: Effect[] }
-type Effect<T = any> = (state: T) => void
-
-type Observed<T extends object> = T & {
-  nextEffect?: Effect<T>
-  effects: { [idx: string]: Effect[] }
-}
-
-function makeState<T extends object>(initial: T): T {
+export function makeState<S extends Stateful>(initial: S): S {
   // Create an object to store effects
-  let effects: EffectMap<T> = {} as any
+  let effects: EffectMap<S> = {} as any
   for (let key in initial) effects[key] = []
 
+  // Create locks
+  // let locks: Locks<S> = {} as any
+  // for (let key in initial) locks[key] = false
+
   // Create our new state, with the effects
-  let state: Observed<T> = Object.assign({ effects }, initial)
+  let state: Observed<S> = Object.assign({ effects }, initial)
+  ;(state as any)[isObservable] = true
 
   // Create a proxy to register effects
-  let proxy = new Proxy<Observed<T>>(state, {
-    get(target: any, prop) {
+  let proxy = new Proxy<Observed<S>>(state, {
+    get(target: S, prop: keyof S) {
       // Register the effect
-      if (state.nextEffect && prop !== 'nextEffect') {
-        target.effects[prop as any].push(target.nextEffect)
-        state.nextEffect = undefined
+      if (
+        state.nextEffect &&
+        state.effects[prop] &&
+        !state.effects[prop].includes(state.nextEffect)
+      ) {
+        target.effects[prop].push(state.nextEffect)
       }
-      return target[prop]
+      return (target as any)[prop]
     },
-    set(target, prop, value) {
+    set(target: S, prop: keyof S, value) {
       ;(target as any)[prop] = value
 
       // Trigger effects
-      if (target.effects[prop as any]) {
-        target.effects[prop as any].forEach(effect => effect(target))
+      if (state.effects[prop]) {
+        state.effects[prop].forEach(effect => effect(target))
       }
       return true
     }
@@ -137,19 +84,77 @@ function makeState<T extends object>(initial: T): T {
   return proxy
 }
 
-function useEffect<T extends object>(state: T, effect: Effect<T>) {
-  ;(state as Observed<T>).nextEffect = effect
-  effect(state)
+type Computed<S, V> = (state: S) => V
+type ComputedDef<S extends Stateful, C> = { [K in keyof C]: Computed<S, C[K]> }
+
+export function computeProps<S extends Stateful, C extends Stateful>(
+  state: S,
+  computed: ComputedDef<S, C>
+): C {
+  let computedState = {} as C
+
+  for (let key in computed) {
+    useEffect(state, state => {
+      computedState[key] = computed[key](state)
+    })
+  }
+
+  computedState = makeState(computedState)
+
+  return computedState
 }
 
-let s0 = makeState({ name: 'Geoff', canSubmit: false })
+export function useEffect<S extends Stateful>(state: S, effect: Effect<S>) {
+  withObservable(state, observed => {
+    observed.nextEffect = effect
+    effect(state)
+    observed.nextEffect = undefined
+  })
+}
 
-useEffect(s0, state => {
-  state.canSubmit = state.name.length > 4
-})
+export type FinateState = {
+  enter(): void
+  leave(): void
+}
 
-useEffect(s0, state => console.log(state.name, state.canSubmit))
+type Enum = { [idx: string]: string }
+export type FsmDef<F extends string> = { [K in F]: FinateState }
 
-s0.name = 'Geoffrey'
-s0.name = 'Jim'
-s0.name = 'Tom'
+export function makeFsm<S extends Stateful, K extends keyof S, F extends S[K]>(
+  state: S,
+  key: K,
+  fsm: FsmDef<F>
+) {
+  let current: S[K] | undefined
+  useEffect(state, state => {
+    if (current) fsm[current].leave()
+    current = state[key]
+    fsm[current!].enter()
+  })
+
+  // NOTE: Possible issue with first state.enter registering an effect
+}
+
+function domRender(name: string, attrs: any, ...children: any[]): HTMLElement {
+  let elem = document.createElement(name)
+  for (let prop in attrs) {
+    elem.setAttribute(prop, attrs[prop])
+  }
+  for (let i in children) {
+    switch (typeof children[i]) {
+      case 'string':
+        elem.appendChild(document.createTextNode(children[i]))
+        break
+      default:
+        elem.appendChild(children[i])
+        break
+    }
+  }
+  return elem
+}
+
+export function h(elem: any, attrs: object, ...children: any[]) {
+  if (typeof elem === 'string') return domRender(elem, attrs, ...children)
+  if (typeof elem === 'function') return elem(attrs, ...children)
+  throw new Error(`Unknown element '${elem}'`)
+}

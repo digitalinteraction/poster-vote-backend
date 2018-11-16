@@ -1,3 +1,3 @@
 import './theme.sass'
 
-import './scripts/login'
+import './scripts/login.tsx'

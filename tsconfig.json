@@ -6,7 +6,9 @@
     "outDir": "dist/server",
     "strict": true,
     "noImplicitAny": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "jsx": "React",
+    "jsxFactory": "h"
   },
   "include": ["server/**/*.ts", "tools/**/*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts", "dist", ".cache", "uploads"]
