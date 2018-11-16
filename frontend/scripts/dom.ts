@@ -37,27 +37,6 @@ export function withObservable<S extends Stateful, U>(
   return block(state as any)
 }
 
-export function withNextEffect<S extends Stateful, U>(
-  state: S,
-  block: (effect: Effect<S>) => U
-) {
-  return withObservable(state, state => {
-    const effect = state[nextEffectSymbol]
-    return effect && block(effect)
-  })
-}
-
-export function withEffects<S extends Stateful, U>(
-  state: S,
-  prop: keyof S,
-  block: (effects: Effect<S>[]) => U
-) {
-  return withObservable(state, state => {
-    const effects = state[effectsSymbol][prop]
-    return effects && block(effects)
-  })
-}
-
 export function makeState<S extends Stateful>(initial: S): S {
   // Create an object to store effects
   let effects: EffectMap<S> = {} as any
@@ -74,9 +53,10 @@ export function makeState<S extends Stateful>(initial: S): S {
   let proxy = new Proxy(state as S, {
     get(target: S, prop: keyof S) {
       // Register the effect
-      withNextEffect(target, nextEffect => {
-        let effects = state[effectsSymbol][prop]
-        if (!effects || effects.includes(nextEffect)) return
+      withObservable(target, state => {
+        const nextEffect = state[nextEffectSymbol]
+        const effects = state[effectsSymbol][prop]
+        if (!nextEffect || !effects || effects.includes(nextEffect)) return
         effects.push(nextEffect)
       })
       return (target as any)[prop]
@@ -84,9 +64,11 @@ export function makeState<S extends Stateful>(initial: S): S {
     set(target, prop: keyof S, value) {
       target[prop] = value
 
-      withEffects(target, prop, effects => {
+      withObservable(target, state => {
+        const effects = state[effectsSymbol][prop] || []
         effects.forEach(effect => effect(target))
       })
+
       return true
     }
   })
@@ -94,53 +76,11 @@ export function makeState<S extends Stateful>(initial: S): S {
   return proxy
 }
 
-type Computed<S, V> = (state: S) => V
-type ComputedDef<S extends Stateful, C> = { [K in keyof C]: Computed<S, C[K]> }
-
-// export function computeProps<S extends Stateful, C extends Stateful>(
-//   state: S,
-//   computed: ComputedDef<S, C>
-// ): C {
-//   let computedState = {} as C
-//
-//   for (let key in computed) {
-//     useEffect(state, state => {
-//       computedState[key] = computed[key](state)
-//     })
-//   }
-//
-//   computedState = makeState(computedState)
-//
-//   return computedState
-// }
-
 export function useEffect<S extends Stateful>(state: S, effect: Effect<S>) {
   withObservable(state, observed => {
     observed[nextEffectSymbol] = effect
     effect(state)
     delete observed[nextEffectSymbol]
-  })
-}
-
-export type FinateState = {
-  enter(): void
-  leave(): void
-}
-
-type Enum = { [idx: string]: string }
-export type FsmDef<F extends string> = { [K in F]: FinateState }
-
-export function makeFsm<S extends Stateful, K extends keyof S, F extends S[K]>(
-  state: S,
-  key: K,
-  fsm: FsmDef<F>
-) {
-  let current: S[K] | undefined
-  useEffect(state, state => {
-    if (current) fsm[current].leave()
-    current = state[key]
-    delete (state as any)[nextEffectSymbol]
-    fsm[current!].enter()
   })
 }
 
@@ -166,4 +106,77 @@ export function h(elem: any, attrs: object = {}, ...children: any[]) {
   if (typeof elem === 'string') return domRender(elem, attrs, ...children)
   if (typeof elem === 'function') return elem(attrs, ...children)
   throw new Error(`Unknown element '${elem}'`)
+}
+
+/*
+ * ==== DEPRECATED ====
+ */
+
+/* Observable Utils */
+
+export function withEffects<S extends Stateful, U>(
+  state: S,
+  prop: keyof S,
+  block: (effects: Effect<S>[]) => U
+) {
+  return withObservable(state, state => {
+    const effects = state[effectsSymbol][prop]
+    return effects && block(effects)
+  })
+}
+
+export function withNextEffect<S extends Stateful, U>(
+  state: S,
+  block: (effect: Effect<S>) => U
+) {
+  return withObservable(state, state => {
+    const effect = state[nextEffectSymbol]
+    return effect && block(effect)
+  })
+}
+
+/* Computed Props */
+
+type Computed<S, V> = (state: S) => V
+type ComputedDef<S extends Stateful, C> = { [K in keyof C]: Computed<S, C[K]> }
+
+export function computeProps<S extends Stateful, C extends Stateful>(
+  state: S,
+  computed: ComputedDef<S, C>
+): C {
+  let computedState = {} as C
+
+  for (let key in computed) {
+    useEffect(state, state => {
+      computedState[key] = computed[key](state)
+    })
+  }
+
+  computedState = makeState(computedState)
+
+  return computedState
+}
+
+/* Finite State Machines */
+
+export type FinateState = {
+  enter(): void
+  leave(): void
+}
+
+type Enum = { [idx: string]: string }
+export type FsmDef<F extends string> = { [K in F]: FinateState }
+
+export function makeFsm<S extends Stateful, K extends keyof S, F extends S[K]>(
+  state: S,
+  key: K,
+  fsm: FsmDef<F>
+) {
+  let current: S[K] | undefined
+  useEffect(state, state => {
+    if (current) fsm[current].leave()
+    current = state[key]
+    delete (state as any)[nextEffectSymbol]
+    fsm[current!].enter()
+  })
 }
