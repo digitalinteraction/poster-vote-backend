@@ -18,18 +18,22 @@ let messageEmail = document.querySelector('#loginMessage .email') as HTMLElement
 
 type LoginState = 'input' | 'working' | 'success'
 
-let state = makeState({
-  email: '',
-  fsm: 'input' as LoginState
-})
-
-async function submitLogin() {
-  state.fsm = 'working'
-  let { data } = await axios.post('/api/users', { email: emailInput.value })
-  state.fsm = 'success'
-}
+// enum LoginState2 {
+//   Input = 'input'
+// }
 
 if (loginForm && loginMessage && emailInput && loginButton) {
+  let state = makeState({
+    email: '',
+    fsm: 'input' as LoginState
+  })
+
+  async function submitLogin() {
+    state.fsm = 'working'
+    let { data } = await axios.post('/api/users', { email: emailInput.value })
+    state.fsm = 'success'
+  }
+  
   useEffect(state, state => {
     loginButton.disabled = state.fsm !== 'input' || !isEmail(state.email)
   })
