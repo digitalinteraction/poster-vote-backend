@@ -3,8 +3,6 @@ import { Redirect } from 'server/core/errors'
 import { Table } from 'server/const'
 
 export function home({ jwt, res, req }: RouteContext) {
-  // if (jwt) throw new Redirect('/posters')
-
   res.render('pages/home', {
     title: 'Home',
     loggedIn: jwt !== undefined
@@ -21,5 +19,16 @@ export async function posters({ res, jwt, knex }: RouteContext) {
   res.render('pages/posters', {
     title: 'Posters',
     posters
+  })
+}
+
+export async function addPoster({ res, jwt, knex }: RouteContext) {
+  if (!jwt) throw new Redirect('/')
+
+  let randomColour = '#' + Math.floor(Math.random() * 16777215).toString(16)
+
+  res.render('pages/newPoster', {
+    title: 'New Poster',
+    randomColour
   })
 }

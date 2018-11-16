@@ -1,0 +1,61 @@
+extends ../layouts/basic.pug
+
+mixin option(index, placeholder)
+  .field.has-addons
+    .control
+      button.button.is-static(tabindex="-1")= index + '.'
+    .control.is-expanded
+      input.input(type="text", placeholder=placeholder)
+
+block content
+  section.hero.is-primary
+    .hero-head
+      include ../components/nav.pug
+    .hero-body
+      .container
+        h1.title New Poster
+        h1.subtitle Create a new poster on Poster Vote
+  
+  .toolbar
+    .container
+      .toolbar-body
+        .toolbar-item
+          nav.breadcrumb
+            ul
+              li: a(href="/") Home
+              li: a(href="/posters") Posters
+              li.is-active: a(href="/posters/add") Add Poster
+  
+  section.section
+    .container
+      .columns
+        .column
+          .field
+            label.label(for="nameInput") Name (just for you)
+            .control
+              input#nameInput.input(type="text", placeholder="e.g. Lunch survey")
+          .field
+            label.label(for="colorInput") Colour
+            .control
+              input#colorInput.input(type="color", value=randomColour)
+          .field
+            label.label(for="ownerInput") Creator (optional)
+            .control
+              input#ownerInput.input(type="text", placeholder="e.g. Geoff Testington")
+          .field
+            label.label(for="contactInput") Contact (optional)
+            .control
+              input#contactInput.input(type="text", placeholder="e.g. geoff@newcastle.ac.uk")
+        .column
+          label.label Options
+          +option(1, 'e.g. Option A')
+          +option(2, 'e.g. Option B')
+          +option(3, 'e.g. Option C')
+          +option(4, 'e.g. Option D')
+          +option(5, 'e.g. Option E')
+          p.help These are the options people viewing your poster will have to pick from, you can leave some blank.
+    
+  section.section
+    .container
+      .buttons.is-centered
+        button.button.is-success.is-medium Create Poster!

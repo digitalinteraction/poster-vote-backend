@@ -13,7 +13,10 @@ block content
     .container
       .toolbar-body
         .toolbar-item
-          a.button.is-text.no-underline(href="/") ← Back
+          nav.breadcrumb
+            ul
+              li: a(href="/") Home
+              li.is-active: a(href="/posters") Posters
         .toolbar-seperator
         .toolbar-item
           a.button.is-success(href="/posters/add") Create poster

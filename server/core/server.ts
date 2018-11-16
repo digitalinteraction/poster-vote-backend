@@ -74,9 +74,12 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   app.get('/api/ivr/vote/start', r(routes.ivr.voteStart))
   app.get('/api/ivr/vote/finish', r(routes.ivr.voteFinish))
 
-  // Misc routes
+  // Pages
   app.get('/', r(routes.pages.home))
+  app.get('/posters/add', r(routes.pages.addPoster))
   app.get('/posters', r(routes.pages.posters))
+
+  // Misc routes
   app.use('/dist', express.static('dist/frontend'))
 }
 
