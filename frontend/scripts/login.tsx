@@ -22,10 +22,6 @@ let state = makeState({
   fsm: 'input' as LoginState
 })
 
-let computed = computeProps(state, {
-  canSubmit: state => isEmail(state.email)
-})
-
 async function submitLogin() {
   state.fsm = 'working'
   let { data } = await axios.post('/api/users', { email: emailInput.value })
@@ -33,8 +29,21 @@ async function submitLogin() {
 }
 
 if (loginForm && loginMessage && emailInput && loginButton) {
-  useEffect(computed, state => {
-    loginButton.disabled = !state.canSubmit
+  useEffect(state, state => {
+    loginButton.disabled = state.fsm !== 'input' || !isEmail(state.email)
+  })
+
+  useEffect(state, state => {
+    loginMessage.innerHTML = ''
+    loginMessage.appendChild(
+      <div class="notification is-success">
+        <button class="delete" />
+        <div>
+          We've sent an email to '{state.email}', check your email for a login
+          link
+        </div>
+      </div>
+    )
   })
 
   makeFsm(state, 'fsm', {
@@ -45,24 +54,15 @@ if (loginForm && loginMessage && emailInput && loginButton) {
     working: {
       enter: () => {
         emailInput.disabled = true
-        loginButton.disabled = true
       },
       leave: () => {
         emailInput.disabled = false
-        loginButton.disabled = false
       }
     },
     success: {
       enter: () => {
         loginForm.style.display = 'none'
         loginMessage.style.display = null
-        loginMessage.innerHTML = `
-        <div class="notification is-success">
-          <button class="delete"></button>
-          <div>We've sent an email to '${
-            state.email
-          }', check your email for a login link</div>
-        </div>`
       },
       leave: () => {
         loginForm.style.display = null
@@ -70,8 +70,6 @@ if (loginForm && loginMessage && emailInput && loginButton) {
       }
     }
   })
-
-  let html = <h1>Hey</h1>
 
   emailInput.addEventListener('input', e => {
     state.email = (e.target as HTMLInputElement).value

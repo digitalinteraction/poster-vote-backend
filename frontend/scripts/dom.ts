@@ -153,7 +153,7 @@ function domRender(name: string, attrs: any, ...children: any[]): HTMLElement {
   return elem
 }
 
-export function h(elem: any, attrs: object, ...children: any[]) {
+export function h(elem: any, attrs: object = {}, ...children: any[]) {
   if (typeof elem === 'string') return domRender(elem, attrs, ...children)
   if (typeof elem === 'function') return elem(attrs, ...children)
   throw new Error(`Unknown element '${elem}'`)
