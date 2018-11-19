@@ -33,7 +33,7 @@ if (loginForm && loginMessage && emailInput && loginButton) {
     let { data } = await axios.post('/api/users', { email: emailInput.value })
     state.fsm = 'success'
   }
-  
+
   useEffect(state, state => {
     loginButton.disabled = state.fsm !== 'input' || !isEmail(state.email)
   })
