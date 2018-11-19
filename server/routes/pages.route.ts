@@ -25,10 +25,11 @@ export async function posters({ res, jwt, knex }: RouteContext) {
 export async function addPoster({ res, jwt, knex }: RouteContext) {
   if (!jwt) throw new Redirect('/')
 
-  let randomColour = '#' + Math.floor(Math.random() * 16777215).toString(16)
+  let randomColour = Math.floor(Math.random() * 16777215).toString(16)
+  while (randomColour.length < 6) randomColour = '0' + randomColour
 
   res.render('pages/newPoster', {
     title: 'New Poster',
-    randomColour
+    randomColour: '#' + randomColour
   })
 }

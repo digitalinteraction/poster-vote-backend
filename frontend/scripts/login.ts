@@ -1,15 +1,6 @@
 import { isEmail, makeState, useEffect } from './dom'
 import axios from 'axios'
 
-declare global {
-  namespace JSX {
-    interface Element extends HTMLElement {}
-    interface IntrinsicElements {
-      [elemName: string]: any
-    }
-  }
-}
-
 let loginForm = document.getElementById('loginForm') as HTMLElement
 let loginMessage = document.getElementById('loginMessage') as HTMLElement
 let emailInput = document.getElementById('loginEmail') as HTMLInputElement
@@ -17,10 +8,6 @@ let loginButton = document.getElementById('loginButton') as HTMLButtonElement
 let messageEmail = document.querySelector('#loginMessage .email') as HTMLElement
 
 type LoginState = 'input' | 'working' | 'success'
-
-// enum LoginState2 {
-//   Input = 'input'
-// }
 
 if (loginForm && loginMessage && emailInput && loginButton) {
   let state = makeState({

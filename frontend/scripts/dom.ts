@@ -1,7 +1,16 @@
+declare global {
+  namespace JSX {
+    interface Element extends HTMLElement {}
+    interface IntrinsicElements {
+      [elemName: string]: any
+    }
+  }
+}
+
 type EventCallback<T extends Event, U extends Element> = (e: T, elem: U) => void
 
 /** Register event listeners on a query selector */
-export function on<T extends Event = Event, U extends Element = Element>(
+export function onEvent<T extends Event = Event, U extends Element = Element>(
   selector: string,
   eventName: string,
   handler: EventCallback<T, U>
@@ -21,6 +30,10 @@ type Stateful = {
   [idx: string]: any
 }
 type Effect<S extends Stateful> = (state: S) => void
+type DomEffect<E extends Element, S extends Stateful> = (
+  elem: E,
+  state: S
+) => void
 type EffectMap<S extends Stateful> = { [K in keyof S]: Effect<S>[] }
 
 type Observable<S extends Stateful> = S & {
@@ -62,11 +75,12 @@ export function makeState<S extends Stateful>(initial: S): S {
       return (target as any)[prop]
     },
     set(target, prop: keyof S, value) {
+      if (target[prop] === value) return true
       target[prop] = value
 
       withObservable(target, state => {
         const effects = state[effectsSymbol][prop] || []
-        effects.forEach(effect => effect(target))
+        effects.forEach(effect => useEffect(proxy, effect))
       })
 
       return true
@@ -81,6 +95,42 @@ export function useEffect<S extends Stateful>(state: S, effect: Effect<S>) {
     observed[nextEffectSymbol] = effect
     effect(state)
     delete observed[nextEffectSymbol]
+  })
+}
+
+function queryElemOrError<E extends Element>(selector: string): E {
+  let elem = document.querySelector(selector)
+  if (!elem) throw new Error(`'${selector}' not found`)
+  return elem as E
+}
+
+export function bindEffect<E extends Element, S extends Stateful>(
+  selector: string,
+  state: S,
+  effect: DomEffect<E, S>
+) {
+  let elem = queryElemOrError<E>(selector)
+  useEffect(state, state => effect(elem, state))
+}
+
+export function bindInput<
+  E extends HTMLInputElement,
+  S extends Stateful,
+  K extends keyof S
+>(selector: string, state: S, key: K) {
+  let elem = queryElemOrError<E>(selector)
+
+  // Set the state from the input's value
+  state[key] = elem.value
+
+  // Set the input's value when the state changes
+  useEffect(state, state => {
+    elem.value = state[key]
+  })
+
+  // Set the states's value when the input changes
+  elem.addEventListener('input', e => {
+    state[key] = elem.value
   })
 }
 

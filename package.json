@@ -37,6 +37,7 @@
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "chalk": "^2.4.1",
+    "color-convert": "^1.9.3",
     "commander": "^2.19.0",
     "cookie-parser": "^1.4.3",
     "dotenv": "^6.1.0",
@@ -49,7 +50,7 @@
     "mysql": "^2.16.0",
     "pug": "^2.0.3",
     "tsconfig-paths": "^3.7.0",
-    "twilio": "^3.23.2",
+    "twilio": "^3.24.0",
     "valid-env": "^0.1.2"
   },
   "devDependencies": {
@@ -58,6 +59,7 @@
     "@types/ansi-escapes": "^3.0.0",
     "@types/body-parser": "^1.17.0",
     "@types/chai": "^4.1.7",
+    "@types/color-convert": "^1.9.0",
     "@types/cookie-parser": "^1.4.1",
     "@types/download": "^6.2.3",
     "@types/escape-string-regexp": "^1.0.0",
@@ -73,14 +75,14 @@
     "bulma": "^0.7.2",
     "chai": "^4.2.0",
     "husky": "^1.1.4",
-    "lint-staged": "^8.0.4",
+    "lint-staged": "^8.0.5",
     "mocha": "^5.2.0",
     "nodemon": "^1.18.6",
     "nyc": "^13.1.0",
     "parcel-bundler": "^1.10.3",
     "prettier": "1.15.2",
-    "sass": "^1.15.0",
+    "sass": "^1.15.1",
     "ts-node": "^7.0.1",
-    "typescript": "^3.1.4"
+    "typescript": "^3.1.6"
   }
 }

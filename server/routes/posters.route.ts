@@ -43,9 +43,11 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
     throw BadParams.shouldBe('options', 'string[]')
   }
 
-  let { owner = null, contact = null, colour = '7E7F9A' } = req.body
+  let { owner = null, contact = null, colour = '#7E7F9A' } = req.body
 
   let allCodes: number[] = await knex('posters').pluck('code')
+
+  colour = colour.replace('#', '')
 
   let code: number
   do {

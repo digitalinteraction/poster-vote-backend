@@ -1,11 +1,14 @@
 extends ../layouts/basic.pug
 
-mixin option(index, placeholder)
+mixin option(index, letter)
   .field.has-addons
     .control
-      button.button.is-static(tabindex="-1")= index + '.'
+      button.button.is-static(tabindex="-1")= index + 1 + '.'
     .control.is-expanded
-      input.input(type="text", placeholder=placeholder)
+      input.input.poster-option(type="text", placeholder="e.g. Option " + letter, data-option=index)
+
+block scripts
+  script(src="/dist/scripts/newPoster.js")
 
 block content
   section.hero.is-primary
@@ -26,18 +29,29 @@ block content
               li: a(href="/posters") Posters
               li.is-active: a(href="/posters/add") Add Poster
   
+  section.section#messages
+    .container
+      .message.is-danger
+        .message-header Something went wrong
+        .message-body
+          ul
+  
   section.section
     .container
       .columns
         .column
           .field
-            label.label(for="nameInput") Name (just for you)
+            label.label(for="nameInput") Name
             .control
               input#nameInput.input(type="text", placeholder="e.g. Lunch survey")
           .field
-            label.label(for="colorInput") Colour
+            label.label(for="questionInput") Question
             .control
-              input#colorInput.input(type="color", value=randomColour)
+              input#questionInput.input(type="text", placeholder="e.g. What did you have for lunch today?")
+          .field
+            label.label(for="colourInput") Colour
+            .control
+              input#colourInput.input(type="color", value=randomColour)
           .field
             label.label(for="ownerInput") Creator (optional)
             .control
@@ -48,14 +62,19 @@ block content
               input#contactInput.input(type="text", placeholder="e.g. geoff@newcastle.ac.uk")
         .column
           label.label Options
-          +option(1, 'e.g. Option A')
-          +option(2, 'e.g. Option B')
-          +option(3, 'e.g. Option C')
-          +option(4, 'e.g. Option D')
-          +option(5, 'e.g. Option E')
+          +option(0, 'A')
+          +option(1, 'B')
+          +option(2, 'C')
+          +option(3, 'D')
+          +option(4, 'E')
           p.help These are the options people viewing your poster will have to pick from, you can leave some blank.
     
   section.section
     .container
       .buttons.is-centered
-        button.button.is-success.is-medium Create Poster!
+        a.button.is-text(href="/posters") Cancel
+        button#submitPoster.button.is-success.is-medium Create
+  
+  section.section
+    .container
+      pre#dev

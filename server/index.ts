@@ -1,7 +1,7 @@
 import { makeServer, startServer } from 'server/core/server'
 import { dbFromEnvironment } from 'server/core/db'
 import { setupFskDirectories } from 'server/core/fsk'
-import { startBundler } from './dev'
+import { startBundler } from './core/dev'
 
 import validateEnv = require('valid-env')
 import * as anisi from 'ansi-escapes'
