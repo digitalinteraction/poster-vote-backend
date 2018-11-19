@@ -47,7 +47,7 @@ export class BadParams extends HttpError {
   static check<T extends any>(body: any, args: ParamDef<T>): T {
     let missing = new Array<string>()
     for (let [key, type] of Object.entries(args)) {
-      if (typeof body[key] === type) break
+      if (typeof body[key] === type) continue
       missing.push(`'${key}' should be a '${type}'`)
     }
     if (missing.length === 0) return body as T
