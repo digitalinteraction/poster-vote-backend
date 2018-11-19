@@ -6,11 +6,7 @@ export async function startBundler() {
   let Bundler = await import('parcel-bundler')
 
   let bundler = new Bundler(
-    [
-      resolve('app.ts'),
-      resolve('scripts/login.ts'),
-      resolve('scripts/newPoster.ts')
-    ],
+    [resolve('app.ts'), resolve('js/login.ts'), resolve('js/newPoster.ts')],
     {
       outDir: 'dist/frontend',
       watch: true

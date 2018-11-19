@@ -80,6 +80,7 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   app.get('/posters', r(routes.pages.posters))
 
   // Misc routes
+  app.use('/static', express.static('static'))
   app.use('/dist', express.static('dist/frontend'))
 }
 

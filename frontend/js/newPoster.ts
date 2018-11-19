@@ -1,4 +1,5 @@
-import { h, onEvent, makeState, useEffect, bindEffect, bindInput } from './dom'
+import { h, onEvent, bindEffect, bindInput } from './dom'
+import { makeState, useEffect } from './observable'
 import { ApiClient } from './ApiClient'
 
 type Fsm = 'input' | 'working'
@@ -69,7 +70,7 @@ onEvent('#submitPoster', 'click', async (e, elem) => {
 
   const { name, question, colour, owner, contact, options } = state
 
-  const { meta, data } = await posterClient.post<Poster>('/api/posters', {
+  const { meta, data } = await posterClient.post<Poster>('posters', {
     name,
     question,
     colour,
