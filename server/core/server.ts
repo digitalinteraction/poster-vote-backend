@@ -5,6 +5,7 @@ import * as routes from '../routes'
 import * as Knex from 'knex'
 import { Api } from 'api-formatter'
 import * as bodyParser from 'body-parser'
+import * as cors from 'cors'
 import * as cookieParser from 'cookie-parser'
 import * as jwtParser from 'express-jwt'
 import * as escapeStringRegexp from 'escape-string-regexp'
@@ -49,6 +50,16 @@ export function applyMiddleware(app: express.Application, knex: Knex) {
   app.use(cookieParser(process.env.COOKIE_SECRET!))
   app.use(Api.middleware({}))
   app.use(jwtParser(jwtParserConfig))
+  app.use(
+    cors({
+      origin: process.env.WEB_URL,
+      allowedHeaders: [
+        'X-Requested-With',
+        'X-HTTP-Method-Override',
+        'Content-Type, Accept'
+      ]
+    })
+  )
 }
 
 export function applyRoutes(app: express.Application, knex: Knex) {

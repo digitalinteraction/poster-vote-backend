@@ -17,6 +17,8 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 
 export const validate = () =>
     validateEnv([
+      'API_URL',
+      'WEB_URL',
       'DB_TYPE',
       'DB_URI',
       'JWT_SECRET',
