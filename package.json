@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run build:server && npm run build:frontend",
     "build:server": "tsc",
-    "build:frontend": "parcel build --out-dir dist/frontend frontend/app.ts",
+    "build:frontend": "parcel build --out-dir dist/frontend frontend/app.ts frontend/js/login.ts frontend/js/newPoster.ts",
     "coverage": "nyc --reporter=html npm test -s",
     "lint": "npx tslint -p .",
     "mysql": "docker run -it --rm --name dev_mysql -v mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -p 3306:3306 mysql:5.7",
