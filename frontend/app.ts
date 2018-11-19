@@ -1,6 +1,6 @@
 import './theme.sass'
 
-import './scripts/login.tsx'
+import './scripts/login.ts'
 
 document.querySelectorAll('[js-cloak]').forEach(elem => {
   if (!(elem instanceof HTMLElement)) return
