@@ -1,7 +1,6 @@
-import { makeServer, startServer } from 'server/core/server'
-import { dbFromEnvironment } from 'server/core/db'
-import { setupFskDirectories } from 'server/core/fsk'
-import { startBundler } from './core/dev'
+import { makeServer, startServer } from 'src/core/server'
+import { dbFromEnvironment } from 'src/core/db'
+import { setupFskDirectories } from 'src/core/fsk'
 
 import validateEnv = require('valid-env')
 import * as anisi from 'ansi-escapes'
@@ -25,8 +24,7 @@ export const validate = () =>
       'COOKIE_SECRET',
       'ADMIN_EMAIL',
       'SENDGRID_API_KEY',
-      'HASH_SECRET',
-      'PUBLIC_URL'
+      'HASH_SECRET'
     ])
 
   // Startup the app
@@ -42,11 +40,6 @@ export const validate = () =>
     await startServer(app, 3000)
 
     console.log('Listening on :3000')
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[dev] Starting bundler')
-      await startBundler()
-    }
   } catch (error) {
     console.log(error)
   }

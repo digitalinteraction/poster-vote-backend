@@ -3,13 +3,11 @@
     "target": "es2017",
     "module": "commonjs",
     "baseUrl": ".",
-    "outDir": "dist/server",
+    "outDir": "dist",
     "strict": true,
     "noImplicitAny": true,
-    "strictNullChecks": true,
-    "jsx": "React",
-    "jsxFactory": "h"
+    "strictNullChecks": true
   },
-  "include": ["server/**/*.ts", "tools/**/*.ts"],
+  "include": ["src/**/*.ts", "tools/**/*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts", "dist", ".cache", "uploads"]
 }

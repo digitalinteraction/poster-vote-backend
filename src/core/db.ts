@@ -2,8 +2,8 @@ import * as Knex from 'knex'
 import { join } from 'path'
 import * as fs from 'fs'
 import { promisify } from 'util'
-import { Record } from 'server/types'
-import { check, cross } from 'server/const'
+import { Record } from 'src/types'
+import { check, cross } from 'src/const'
 import chalk from 'chalk'
 import validateEnv = require('valid-env')
 

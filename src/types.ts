@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { Api } from 'api-formatter'
-import { Queries } from 'server/core/queries'
-import { ModelSet } from 'server/core/model'
+import { Queries } from 'src/core/queries'
+import { ModelSet } from 'src/core/model'
 import * as Knex from 'knex'
 
 export type RouteContext = {

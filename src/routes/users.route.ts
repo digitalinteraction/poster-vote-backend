@@ -1,8 +1,13 @@
-import { RouteContext } from 'server/types'
-import { cookieName } from 'server/const'
-import { BadParams, Redirect } from 'server/core/errors'
-import { isEmail, hashEmail, sendgrid } from 'server/core/emails'
-import { jwtSign, jwtVerify, makeUserJwt } from 'server/core/jwt'
+import { join } from 'path'
+import { RouteContext } from 'src/types'
+import { cookieName } from 'src/const'
+import { BadParams, Redirect } from 'src/core/errors'
+import { isEmail, hashEmail, sendgrid } from 'src/core/emails'
+import { jwtSign, jwtVerify, makeUserJwt } from 'src/core/jwt'
+
+// Note: its safe to cast because they are required environment variables
+const apiUrl = process.env.API_URL as string
+const webUrl = process.env.WEB_URL as string
 
 export async function me({ api, jwt }: RouteContext) {
   api.sendData({ usr: jwt ? jwt.usr : null })
@@ -16,7 +21,7 @@ export async function request({ req, res, api }: RouteContext) {
 
   let token = makeUserJwt(email)
 
-  let loginUrl = `${process.env.PUBLIC_URL}/api/check?token=${token}`
+  let loginUrl = `${apiUrl}/check?token=${token}`
   let [username] = email.split('@')
 
   let emailHtml = await new Promise<string>((resolve, reject) => {
@@ -45,7 +50,7 @@ export function check({ req, res }: RouteContext) {
 
   res.cookie(cookieName, jwtSign({ usr }), { signed: true })
 
-  throw new Redirect('/posters')
+  throw new Redirect(webUrl + '/posters')
 }
 
 export function logout({ req, res }: RouteContext) {

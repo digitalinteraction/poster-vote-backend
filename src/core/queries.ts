@@ -1,7 +1,7 @@
 import * as Knex from 'knex'
 
-import { Poster, PosterOption, Device, DeviceCount } from 'server/types'
-import { Table } from 'server/const'
+import { Poster, PosterOption, Device, DeviceCount } from 'src/types'
+import { Table } from 'src/const'
 
 export type PosterWithOptions = Poster & { options: PosterOption[] }
 

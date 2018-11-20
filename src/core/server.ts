@@ -10,12 +10,12 @@ import * as cookieParser from 'cookie-parser'
 import * as jwtParser from 'express-jwt'
 import * as escapeStringRegexp from 'escape-string-regexp'
 
-import { RouteContext, Route } from 'server/types'
-import { cookieName } from 'server/const'
-import { Redirect, HttpError } from 'server/core/errors'
-import { jwtParserConfig } from 'server/core/jwt'
-import { makeQueries } from 'server/core/queries'
-import { makeModels } from 'server/core/model'
+import { RouteContext, Route } from 'src/types'
+import { cookieName } from 'src/const'
+import { Redirect, HttpError } from 'src/core/errors'
+import { jwtParserConfig } from 'src/core/jwt'
+import { makeQueries } from 'src/core/queries'
+import { makeModels } from 'src/core/model'
 
 type ErrorHandler = (
   err: any,
@@ -62,33 +62,28 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   const r = (route: Route) => makeRoute(route, knex)
 
   // Auth routes
-  app.get('/api/users', r(routes.users.me))
-  app.post('/api/users', r(routes.users.request))
-  app.delete('/api/users', r(routes.users.logout))
-  app.get('/api/check', r(routes.users.check))
+  app.get('/users', r(routes.users.me))
+  app.post('/users', r(routes.users.request))
+  app.delete('/users', r(routes.users.logout))
+  app.get('/check', r(routes.users.check))
 
   // Posters routes
-  app.get('/api/posters', r(routes.posters.index))
-  app.get('/api/posters/:id', r(routes.posters.show))
-  app.post('/api/posters', r(routes.posters.create))
-  app.delete('/api/posters/:id', r(routes.posters.destroy))
-  app.get('/api/posters/:id/votes', r(routes.posters.votes))
+  app.get('/posters', r(routes.posters.index))
+  app.get('/posters/:id', r(routes.posters.show))
+  app.post('/posters', r(routes.posters.create))
+  app.delete('/posters/:id', r(routes.posters.destroy))
+  app.get('/posters/:id/votes', r(routes.posters.votes))
 
   // IVR routes
-  app.get('/api/ivr/register/start', r(routes.ivr.registerStart))
-  app.get('/api/ivr/register/poster', r(routes.ivr.registerWithDigits))
-  app.get('/api/ivr/register/finish/:poster_id', r(routes.ivr.registerFinish))
-  app.get('/api/ivr/vote/start', r(routes.ivr.voteStart))
-  app.get('/api/ivr/vote/finish', r(routes.ivr.voteFinish))
-
-  // Pages
-  app.get('/', r(routes.pages.home))
-  app.get('/posters/add', r(routes.pages.addPoster))
-  app.get('/posters', r(routes.pages.posters))
+  app.get('/ivr/register/start', r(routes.ivr.registerStart))
+  app.get('/ivr/register/poster', r(routes.ivr.registerWithDigits))
+  app.get('/ivr/register/finish/:poster_id', r(routes.ivr.registerFinish))
+  app.get('/ivr/vote/start', r(routes.ivr.voteStart))
+  app.get('/ivr/vote/finish', r(routes.ivr.voteFinish))
 
   // Misc routes
+  app.get('/', r(routes.general.hello))
   app.use('/static', express.static('static'))
-  app.use('/dist', express.static('dist/frontend'))
 }
 
 export function applyHandler(app: express.Application, knex: Knex) {
@@ -106,6 +101,7 @@ export function applyHandler(app: express.Application, knex: Knex) {
     }
 
     if (err instanceof Redirect) {
+      console.log(err.status, err.url)
       return res.redirect(err.status, err.url)
     }
 

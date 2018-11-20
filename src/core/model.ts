@@ -2,7 +2,7 @@
 
 import * as Knex from 'knex'
 
-import { Poster, PosterOption, Device, DeviceCount } from 'server/types'
+import { Poster, PosterOption, Device, DeviceCount } from 'src/types'
 
 export type Query<R> = { [K in keyof R]?: any }
 export type Update<R> = { [K in keyof R]?: R[K] }

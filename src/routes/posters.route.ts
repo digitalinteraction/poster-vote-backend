@@ -1,10 +1,10 @@
 import * as Knex from 'knex'
-import { RouteContext, Poster, PosterOption } from 'server/types'
-import { NotFound, BadParams, BadAuth } from 'server/core/errors'
+import { RouteContext, Poster, PosterOption } from 'src/types'
+import { NotFound, BadParams, BadAuth } from 'src/core/errors'
 
 type PosterWithOptions = Poster & { options: PosterOption[] }
 
-// GET api/posters
+// GET /posters
 export async function index({ api, knex, jwt }: RouteContext) {
   if (!jwt) return api.sendData([])
 
@@ -18,7 +18,7 @@ export async function index({ api, knex, jwt }: RouteContext) {
   api.sendData(posters)
 }
 
-// GET api/posters/:id
+// GET /posters/:id
 export async function show({ req, api, knex, jwt, queries }: RouteContext) {
   if (!jwt) return api.sendData([])
 
@@ -28,7 +28,7 @@ export async function show({ req, api, knex, jwt, queries }: RouteContext) {
   api.sendData(poster)
 }
 
-// POST api/posters
+// POST /posters
 export async function create({ req, api, knex, jwt, queries }: RouteContext) {
   if (!jwt) throw new BadAuth()
 
@@ -79,7 +79,7 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
   api.sendData(poster)
 }
 
-// DELETE api/posters
+// DELETE /posters
 export async function destroy({ req, jwt, knex, api }: RouteContext) {
   if (!jwt) throw new BadAuth()
 
@@ -96,7 +96,7 @@ export async function destroy({ req, jwt, knex, api }: RouteContext) {
   api.sendData('ok')
 }
 
-// GET api/posters/:id/votes
+// GET /posters/:id/votes
 export async function votes({ req, api, queries }: RouteContext) {
   let id = parseInt(req.params.id, 10)
   if (Number.isNaN(id)) throw BadParams.shouldBe('id', 'number')

@@ -1,22 +1,20 @@
-import { RouteContext, Device, Poster, DevicePoster } from 'server/types'
-import { Table } from 'server/const'
+import { RouteContext, Device, Poster, DevicePoster } from 'src/types'
+import { Table } from 'src/const'
 
-import { processFskFile } from 'server/core/fsk'
+import { processFskFile } from 'src/core/fsk'
 
 import * as express from 'express'
 import { twiml, TwimlInterface } from 'twilio'
 import * as VoiceResponse from 'twilio/lib/twiml/VoiceResponse'
-import { PosterWithOptions } from 'server/core/queries'
+import { PosterWithOptions } from 'src/core/queries'
 
 //-
 //- Utils
 //-
 
-const publicUrl = process.env.PUBLIC_URL!
-
 const submitMsg = `After the beep place the bottom of your phone near the speaker and hold the first two poster buttons until it beeps.`
 
-const ivrUrl = (path: string) => `/api/ivr/${path}`
+const ivrUrl = (path: string) => `/ivr/${path}`
 
 const speakableNumber = (number: number) =>
   number
@@ -55,7 +53,7 @@ function makeCountRecords(
 //- Register endpoints
 //-
 
-// GET /api/ivr/register/start
+// GET /ivr/register/start
 export function registerStart({ res }: RouteContext) {
   const voice = new twiml.VoiceResponse()
   const gather = voice.gather({
@@ -71,7 +69,7 @@ export function registerStart({ res }: RouteContext) {
   sendTwiml(res, voice)
 }
 
-// GET /api/ivr/register/poster
+// GET /ivr/register/poster
 export async function registerWithDigits({ req, res, knex }: RouteContext) {
   // Start a twiml response
   const voice = new twiml.VoiceResponse()
@@ -120,7 +118,7 @@ export async function registerWithDigits({ req, res, knex }: RouteContext) {
   return sendTwiml(res, voice)
 }
 
-// GET /api/ivr/register/finish/:poster_id?RecordingUrl
+// GET /ivr/register/finish/:poster_id?RecordingUrl
 export async function registerFinish({
   req,
   res,
@@ -189,7 +187,7 @@ export async function registerFinish({
 //- Vote endpoints
 //-
 
-// GET /api/ivr/vote/start
+// GET /ivr/vote/start
 export function voteStart({ req, res, knex }: RouteContext) {
   const voice = new twiml.VoiceResponse()
 
@@ -208,7 +206,7 @@ export function voteStart({ req, res, knex }: RouteContext) {
   sendTwiml(res, voice)
 }
 
-// GET /api/ivr/vote/finish
+// GET /ivr/vote/finish
 export async function voteFinish({ req, res, knex, queries }: RouteContext) {
   const recordingUrl = req.query.RecordingUrl as string
   const voice = new twiml.VoiceResponse()
