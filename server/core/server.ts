@@ -53,11 +53,7 @@ export function applyMiddleware(app: express.Application, knex: Knex) {
   app.use(
     cors({
       origin: process.env.WEB_URL,
-      allowedHeaders: [
-        'X-Requested-With',
-        'X-HTTP-Method-Override',
-        'Content-Type, Accept'
-      ]
+      credentials: true
     })
   )
 }
