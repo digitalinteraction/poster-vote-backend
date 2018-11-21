@@ -101,7 +101,6 @@ export function applyHandler(app: express.Application, knex: Knex) {
     }
 
     if (err instanceof Redirect) {
-      console.log(err.status, err.url)
       return res.redirect(err.status, err.url)
     }
 
