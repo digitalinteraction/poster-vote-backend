@@ -49,6 +49,7 @@ export const makeQueries = (knex: Knex): Queries => ({
       ])
       .min({ min: 'device_counts.value' })
       .max({ max: 'device_counts.value' })
+      .max({ recorded: 'device_counts.created_at' })
       .innerJoin(
         'device_counts',
         'device_counts.poster_option_id',
