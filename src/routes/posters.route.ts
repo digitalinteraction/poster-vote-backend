@@ -4,6 +4,11 @@ import { NotFound, BadParams, BadAuth } from 'src/core/errors'
 
 type PosterWithOptions = Poster & { options: PosterOption[] }
 
+function preparePoster(poster: Poster) {
+  let url = `${process.env.API_URL!}/posters/${poster.id}/print.pdf`
+  ;(poster as any).pdf_url = url
+}
+
 // GET /posters
 export async function index({ api, knex, jwt }: RouteContext) {
   if (!jwt) return api.sendData([])
@@ -15,15 +20,17 @@ export async function index({ api, knex, jwt }: RouteContext) {
 
   let posters = await knex('posters').where(query)
 
+  posters.forEach(preparePoster)
+
   api.sendData(posters)
 }
 
 // GET /posters/:id
 export async function show({ req, api, knex, jwt, queries }: RouteContext) {
-  if (!jwt) return api.sendData([])
-
   let poster = await queries.posterWithOptions(parseInt(req.params.id, 10))
   if (!poster) throw new NotFound('poster not found')
+
+  preparePoster(poster)
 
   api.sendData(poster)
 }
@@ -75,6 +82,8 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
 
     return await queries.with(trx).posterWithOptions(id)
   })
+
+  if (poster) preparePoster(poster)
 
   api.sendData(poster)
 }
