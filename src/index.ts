@@ -24,7 +24,9 @@ export const validate = () =>
       'COOKIE_SECRET',
       'ADMIN_EMAIL',
       'SENDGRID_API_KEY',
-      'HASH_SECRET'
+      'HASH_SECRET',
+      'REG_TWILIO_NUMBER',
+      'VOTE_TWILIO_NUMBER'
     ])
 
   // Startup the app

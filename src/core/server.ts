@@ -73,6 +73,7 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   app.post('/posters', r(routes.posters.create))
   app.delete('/posters/:id', r(routes.posters.destroy))
   app.get('/posters/:id/votes', r(routes.posters.votes))
+  app.get('/posters/:id/print.pdf', r(routes.posters.print))
 
   // IVR routes
   app.get('/ivr/register/start', r(routes.ivr.registerStart))
