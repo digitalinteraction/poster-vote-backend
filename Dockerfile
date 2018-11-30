@@ -18,5 +18,6 @@ RUN npm test -s > /dev/null
 # [3] From the base, copy the dist/ and production node modules in and start
 FROM builder as dist
 RUN npm prune --production
+VOLUME /app/uploads
 ENTRYPOINT [ "npm" ]
 CMD [ "start", "-s" ]

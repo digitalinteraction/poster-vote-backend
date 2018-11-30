@@ -1,7 +1,7 @@
 {
   "name": "posternode",
   "version": "0.0.0",
-  "description": "Project setup by robb-j/ts-node-base",
+  "private": true,
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -43,7 +43,7 @@
     "express": "^4.16.4",
     "express-jwt": "^5.3.1",
     "jsonwebtoken": "^8.4.0",
-    "knex": "^0.16.0",
+    "knex": "^0.15.2",
     "mysql": "^2.16.0",
     "pdfkit": "^0.8.3",
     "pug": "^2.0.3",
@@ -75,6 +75,6 @@
     "nyc": "^13.1.0",
     "prettier": "1.15.2",
     "ts-node": "^7.0.1",
-    "typescript": "^3.1.6"
+    "typescript": "^3.2.1"
   }
 }
