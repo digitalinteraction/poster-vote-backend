@@ -1,3 +1,7 @@
+/*
+ *  These are the poster management routes of the server
+ */
+
 import { RouteContext, Poster } from '../types'
 import { posterAssetDir } from '../const'
 import { NotFound, BadParams, BadAuth } from '../core/errors'

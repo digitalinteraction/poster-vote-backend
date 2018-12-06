@@ -1,3 +1,7 @@
+/*
+ *  This is the CLI entrypoint to the app, providing different commands
+ */
+
 import program from 'commander'
 import { dbFromEnvironment, MigrationManager } from './core/db'
 import { makeUserJwt } from './core/jwt'

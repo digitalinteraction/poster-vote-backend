@@ -1,3 +1,7 @@
+/*
+ *  Utilities to manage the sending and hashing of emails
+ */
+
 import crypto from 'crypto'
 import sendgrid from '@sendgrid/mail'
 

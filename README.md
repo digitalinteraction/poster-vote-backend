@@ -1,4 +1,4 @@
-# PosterVote - Node backend
+# PosterVote backend
 
 This is the repo for the PosterVote backend source code.
 It is an [Express](https://expressjs.com/) server written in [TypeScript](https://www.typescriptlang.org/) and deployed through [Docker](https://www.docker.com/).
@@ -40,7 +40,7 @@ npm run mysql
 npm run watch
 
 # Run unit tests
-#  -> It looks for files that end with '...Spec.ts', e.g. MyAppSpec.ts
+#  -> It looks for files that end with '.spec.ts', e.g. MyApp.spec.ts
 npm test -s
 ```
 
@@ -57,6 +57,20 @@ npm test -s
 | src/views      | Pug templates for rendering html                          |
 | static         | Static assets served at `/static`                         |
 | uploads        | Internal uploads directory for storing files              |
+
+### Testing
+
+This project uses [unit tests](https://en.wikipedia.org/wiki/Unit_testing) to ensure that everything is working correctly, guide development, avoid bad code and reduce defects.
+Tests are any file in `src/` that ends with `.spec.ts`, by convention they are inline with the source code,
+in a parallel folder called `__tests__`.
+
+```bash
+# Run the tests
+npm test -s
+
+# Generate code coverage
+npm run coverage -s
+```
 
 ### Formatting
 

@@ -1,13 +1,16 @@
+/*
+ *  A class to manage database access & run migrations
+ */
+
 import Knex from 'knex'
 import { join } from 'path'
 import * as fs from 'fs'
 import { promisify } from 'util'
 import { Record } from '../types'
-import { check, cross } from '../const'
+import { Table, check, cross } from '../const'
 import validateEnv = require('valid-env')
 
 const readdir = promisify(fs.readdir)
-const migrationTable = '_migrations'
 
 const migrationExt = '.' + (process.env.EXECUTOR || 'js')
 
@@ -32,11 +35,13 @@ export function dbFromEnvironment(): Knex {
 export class MigrationManager {
   constructor(public knex: Knex) {}
 
+  /** Setup the migration manager if it isn't already, adding migrations table */
+
   async setup(): Promise<void> {
-    let hasTable = await this.knex.schema.hasTable(migrationTable)
+    let hasTable = await this.knex.schema.hasTable(Table.migration)
     if (hasTable) return
 
-    return this.knex.schema.createTable(migrationTable, table => {
+    return this.knex.schema.createTable(Table.migration, table => {
       table.increments()
       table.timestamps(true, true)
       table.string('name')
@@ -44,11 +49,11 @@ export class MigrationManager {
   }
 
   // async teardown(): Promise<void> {
-  //   return this.knex.schema.dropTable(migrationTable)
+  //   return this.knex.schema.dropTable(Table.migration)
   // }
 
   async currentVersion(): Promise<string | undefined> {
-    let latest: Migration = await this.knex(migrationTable)
+    let latest: Migration = await this.knex(Table.migration)
       .select('*')
       .orderBy('id', 'desc')
       .first()
@@ -103,7 +108,7 @@ export class MigrationManager {
       await this.setup()
 
       // Get the migration records to undo
-      let records: Migration[] = await this.knex(migrationTable)
+      let records: Migration[] = await this.knex(Table.migration)
         .column('name')
         .orderBy('id', 'desc')
 
@@ -147,13 +152,13 @@ export class MigrationManager {
   /** Perform a migration and write to the migrations table */
   private async doMigration(knex: Knex, migrator: Migrator) {
     await migrator.up(knex)
-    await knex(migrationTable).insert({ name: migrator.name })
+    await knex(Table.migration).insert({ name: migrator.name })
   }
 
   /** Reset a migration and delete from the migrations table */
   private async undoMigration(knex: Knex, migrator: Migrator) {
     await migrator.down(knex)
-    await knex(migrationTable)
+    await knex(Table.migration)
       .where({ name: migrator.name })
       .delete()
   }

@@ -1,3 +1,8 @@
+/*
+ *  A class for running the FSK binary on an audio file
+ *   - Also places the audio file in the upload directory uploads/
+ */
+
 // Puts uploads to ~/uploads
 import fs from 'fs'
 import { join, extname } from 'path'

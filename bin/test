@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
+NODE_ENV=testing
 EXECUTOR=ts
-npx mocha -r ts-node/register 'src/**/*Spec.ts'
+npx mocha -r ts-node/register 'src/**/*.spec.ts'

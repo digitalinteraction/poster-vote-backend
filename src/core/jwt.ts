@@ -1,3 +1,7 @@
+/*
+ *  Utility functions for creating & verifying Json web tokens (jwt)
+ */
+
 import * as jwtParser from 'express-jwt'
 import * as jwt from 'jsonwebtoken'
 

@@ -1,3 +1,7 @@
+/*
+ *  This file contains definitions that are re-used throughout the project
+ */
+
 import { Request, Response, NextFunction } from 'express'
 import { Api } from 'api-formatter'
 import { Queries } from './core/queries'

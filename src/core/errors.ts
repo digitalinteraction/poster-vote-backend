@@ -1,3 +1,7 @@
+/*
+ *  A set of custom errors to be used throughout the project
+ */
+
 /** An error to subclass to make custom errors */
 export class CustomError extends Error {
   constructor(message: string) {

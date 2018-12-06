@@ -1,3 +1,8 @@
+/*
+ *  Creates an express server applying middleware, routes & error handling
+ *  -> maps routes using a context which has the (typed) params of the server
+ */
+
 import { join } from 'path'
 
 import express from 'express'

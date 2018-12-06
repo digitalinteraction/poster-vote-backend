@@ -1,3 +1,7 @@
+/*
+ *  A utility for named & reusable queries on the database
+ */
+
 import * as Knex from 'knex'
 
 import { Poster, PosterOption } from '../types'

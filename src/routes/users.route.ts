@@ -1,3 +1,7 @@
+/*
+ *  These are the user and authentication routes of the server
+ */
+
 import { RouteContext } from '../types'
 import { cookieName } from '../const'
 import { BadParams, Redirect } from '../core/errors'
