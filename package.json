@@ -5,14 +5,13 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "coverage": "nyc --reporter=html npm test -s",
+    "coverage": "nyc --reporter=html bin/test",
     "mysql": "docker run -it --rm --name dev_mysql -v mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -p 3306:3306 mysql:5.7",
     "preversion": "npm test -s && tsc && git add dist",
     "prettier": "prettier --write ./**/*.{js,ts,json,css,md}",
-    "start": "node -r tsconfig-paths/register -r dotenv/config dist",
-    "test": "mocha -r ts-node/register -r tsconfig-paths/register 'src/**/*Spec.ts'",
-    "dev": "node -r ts-node/register -r tsconfig-paths/register -r dotenv/config src",
-    "watch": "nodemon -w src -e ts -x 'npm run dev -s' -q src/index.ts"
+    "start": "node -r dotenv/config dist",
+    "test": "bin/test",
+    "watch": "nodemon -w src -e ts -x 'bin/tsnode' -q src/index.ts"
   },
   "author": "robb-j",
   "license": "ISC",
@@ -46,7 +45,6 @@
     "mysql": "^2.16.0",
     "pdfkit": "^0.8.3",
     "pug": "^2.0.3",
-    "tsconfig-paths": "^3.7.0",
     "twilio": "^3.25.0",
     "valid-env": "^0.1.2"
   },

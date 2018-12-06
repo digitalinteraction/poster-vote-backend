@@ -1,8 +1,8 @@
 // Puts uploads to ~/uploads
-import * as fs from 'fs'
+import fs from 'fs'
 import { join, extname } from 'path'
-import * as download from 'download'
-import * as childProc from 'child_process'
+import download from 'download'
+import childProc from 'child_process'
 import { promisify } from 'util'
 
 const exec = promisify(childProc.exec)

@@ -1,12 +1,12 @@
-import { RouteContext, Device, Poster, DevicePoster } from 'src/types'
-import { Table } from 'src/const'
+import { RouteContext, Device, Poster, DevicePoster } from '../types'
+import { Table } from '../const'
 
-import { processFskFile } from 'src/core/fsk'
+import { processFskFile } from '../core/fsk'
 
 import * as express from 'express'
-import { twiml, TwimlInterface } from 'twilio'
-import * as VoiceResponse from 'twilio/lib/twiml/VoiceResponse'
-import { PosterWithOptions } from 'src/core/queries'
+import { twiml } from 'twilio'
+import VoiceResponse from 'twilio/lib/twiml/VoiceResponse'
+import { PosterWithOptions } from '../core/queries'
 
 //-
 //- Utils
@@ -41,7 +41,7 @@ function makeCountRecords(
 ) {
   let optionIds = poster.options.map(o => o.id)
   return votes
-    .filter((count, index) => optionIds[index])
+    .filter((_count, index) => optionIds[index])
     .map((count, index) => ({
       value: count,
       poster_option_id: optionIds[index],
@@ -105,7 +105,7 @@ export async function registerWithDigits({ req, res, knex }: RouteContext) {
   voice.say(submitMsg)
 
   // Ask them to record a sound
-  const record = voice.record({
+  voice.record({
     action: ivrUrl(`register/finish/${poster.id}`),
     method: 'GET',
     playBeep: true,
@@ -192,7 +192,7 @@ export async function registerFinish({
 //-
 
 // GET /ivr/vote/start
-export function voteStart({ req, res, knex }: RouteContext) {
+export function voteStart({ res }: RouteContext) {
   const voice = new twiml.VoiceResponse()
 
   voice.say('Welcome to poster vote.')

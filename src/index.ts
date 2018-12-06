@@ -1,16 +1,8 @@
-import { makeServer, startServer } from 'src/core/server'
-import { dbFromEnvironment } from 'src/core/db'
-import { setupFskDirectories } from 'src/core/fsk'
+import { makeServer, startServer } from './core/server'
+import { dbFromEnvironment } from './core/db'
+import { setupFskDirectories } from './core/fsk'
 
-import validateEnv = require('valid-env')
-import * as anisi from 'ansi-escapes'
-import { EventEmitter } from 'events'
-
-// const clearIfDev = () =>
-//   process.env.NODE_ENV === 'development' &&
-//   process.stdout.write(anisi.clearScreen)
-//
-// clearIfDev()
+import validateEnv from 'valid-env'
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 

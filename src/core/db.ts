@@ -1,14 +1,15 @@
-import * as Knex from 'knex'
+import Knex from 'knex'
 import { join } from 'path'
 import * as fs from 'fs'
 import { promisify } from 'util'
-import { Record } from 'src/types'
-import { check, cross } from 'src/const'
-import chalk from 'chalk'
+import { Record } from '../types'
+import { check, cross } from '../const'
 import validateEnv = require('valid-env')
 
 const readdir = promisify(fs.readdir)
 const migrationTable = '_migrations'
+
+const migrationExt = '.' + (process.env.EXECUTOR || 'js')
 
 type Migration = Record & {
   name: string
@@ -59,10 +60,12 @@ export class MigrationManager {
     let basePath = join(__dirname, '../migrations')
     let paths = await readdir(basePath)
 
+    paths = paths.filter(p => p.endsWith(migrationExt))
+
     return Promise.all(
       paths.map(async file => {
         let m = await import(join(basePath, file))
-        let name = file.replace('.ts', '')
+        let name = file.replace(migrationExt, '')
         return Object.assign({ name }, m)
       })
     )
@@ -90,6 +93,7 @@ export class MigrationManager {
         console.log(check, migrator.name)
       }
     } catch (error) {
+      console.log(error)
       console.log(cross, error.message)
     }
   }

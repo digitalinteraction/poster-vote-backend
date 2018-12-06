@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-node -r tsconfig-paths/register -r dotenv/config dist/cli.js

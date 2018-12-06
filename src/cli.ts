@@ -1,8 +1,6 @@
-import * as program from 'commander'
-import * as Knex from 'knex'
-import { dbFromEnvironment, MigrationManager } from 'src/core/db'
-import { makeUserJwt } from 'src/core/jwt'
-import { hashEmail } from 'src/core/emails'
+import program from 'commander'
+import { dbFromEnvironment, MigrationManager } from './core/db'
+import { makeUserJwt } from './core/jwt'
 import chalk from 'chalk'
 
 let knex = dbFromEnvironment()

@@ -1,21 +1,19 @@
 import { join } from 'path'
 
-import * as express from 'express'
+import express from 'express'
 import * as routes from '../routes'
-import * as Knex from 'knex'
+import Knex from 'knex'
 import { Api } from 'api-formatter'
-import * as bodyParser from 'body-parser'
-import * as cors from 'cors'
-import * as cookieParser from 'cookie-parser'
-import * as jwtParser from 'express-jwt'
-import * as escapeStringRegexp from 'escape-string-regexp'
+import bodyParser from 'body-parser'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import jwtParser from 'express-jwt'
+import escapeStringRegexp from 'escape-string-regexp'
 
-import { RouteContext, Route } from 'src/types'
-import { cookieName } from 'src/const'
-import { Redirect, HttpError } from 'src/core/errors'
-import { jwtParserConfig } from 'src/core/jwt'
-import { makeQueries } from 'src/core/queries'
-import { makeModels } from 'src/core/model'
+import { Route } from '../types'
+import { Redirect, HttpError } from '../core/errors'
+import { jwtParserConfig } from '../core/jwt'
+import { makeQueries } from '../core/queries'
 
 type ErrorHandler = (
   err: any,
@@ -30,7 +28,6 @@ const makeRoute = (route: Route, knex: Knex): express.Handler => {
       let jwt = (req as any).user || undefined
       let api = (req as any).api as Api
       let queries = makeQueries(knex)
-      // let models = makeModels(knex)
       await route({ req, res, next, knex, api, jwt, queries })
     } catch (error) {
       next(error)
@@ -45,7 +42,7 @@ const tidyError = (error: Error): Error => {
   return error
 }
 
-export function applyMiddleware(app: express.Application, knex: Knex) {
+export function applyMiddleware(app: express.Application) {
   app.use(bodyParser.json())
   app.use(cookieParser(process.env.COOKIE_SECRET!))
   app.use(Api.middleware({}))
@@ -87,9 +84,9 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   app.use('/static', express.static('static'))
 }
 
-export function applyHandler(app: express.Application, knex: Knex) {
+export function applyHandler(app: express.Application) {
   // Add error handler
-  let handler: ErrorHandler = (err, req, res, next) => {
+  let handler: ErrorHandler = (err, req, res, _next) => {
     let api = (req as any).api as Api
 
     // Process iterables / strings into an array of messages
@@ -127,9 +124,9 @@ export function makeServer(knex: Knex): express.Application {
   app.set('view engine', 'pug')
   app.locals = {}
 
-  applyMiddleware(app, knex)
+  applyMiddleware(app)
   applyRoutes(app, knex)
-  applyHandler(app, knex)
+  applyHandler(app)
 
   return app
 }

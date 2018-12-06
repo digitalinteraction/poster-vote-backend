@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { Api } from 'api-formatter'
-import { Queries } from 'src/core/queries'
-import { ModelSet } from 'src/core/model'
+import { Queries } from './core/queries'
 import * as Knex from 'knex'
 
 export type RouteContext = {
@@ -12,7 +11,6 @@ export type RouteContext = {
   api: Api
   jwt?: UserJwt
   queries: Queries
-  // models: ModelSet
 }
 
 export type Route = (ctx: RouteContext) => Promise<any> | any

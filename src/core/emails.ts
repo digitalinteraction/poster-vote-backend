@@ -1,13 +1,7 @@
-import * as crypto from 'crypto'
-import * as sendgrid from '@sendgrid/mail'
+import crypto from 'crypto'
+import sendgrid from '@sendgrid/mail'
 
 /** Securely hash an email to be stored / checked */
-// export const hashEmail = (email: string) =>
-//   crypto
-//     .createHmac('sha256', process.env.HASH_SECRET!)
-//     .update(email)
-//     .digest('base64')
-
 export const hashEmail = (email: string) =>
   crypto
     .createHash('sha256')

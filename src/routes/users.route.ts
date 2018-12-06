@@ -1,9 +1,8 @@
-import { join } from 'path'
-import { RouteContext } from 'src/types'
-import { cookieName } from 'src/const'
-import { BadParams, Redirect } from 'src/core/errors'
-import { isEmail, hashEmail, sendgrid } from 'src/core/emails'
-import { jwtSign, jwtVerify, makeUserJwt } from 'src/core/jwt'
+import { RouteContext } from '../types'
+import { cookieName } from '../const'
+import { BadParams, Redirect } from '../core/errors'
+import { isEmail, sendgrid } from '../core/emails'
+import { jwtSign, jwtVerify, makeUserJwt } from '../core/jwt'
 
 // Note: its safe to cast because they are required environment variables
 const apiUrl = process.env.API_URL as string
@@ -53,7 +52,7 @@ export function check({ req, res }: RouteContext) {
   throw new Redirect(webUrl + '/posters')
 }
 
-export function logout({ req, res }: RouteContext) {
+export function logout({ res }: RouteContext) {
   res.clearCookie(cookieName)
   throw new Redirect('/')
 }

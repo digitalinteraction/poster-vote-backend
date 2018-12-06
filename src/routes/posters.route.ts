@@ -1,12 +1,8 @@
-import * as Knex from 'knex'
-import { RouteContext, Poster, PosterOption } from 'src/types'
-import { NotFound, BadParams, BadAuth } from 'src/core/errors'
-// import sharp = require('sharp')
+import { RouteContext, Poster } from '../types'
+import { posterAssetDir } from '../const'
+import { NotFound, BadParams, BadAuth } from '../core/errors'
 import PDFDocument = require('pdfkit')
-import { readFileSync } from 'fs'
 import { join } from 'path'
-
-type PosterWithOptions = Poster & { options: PosterOption[] }
 
 function preparePoster(poster: Poster) {
   let url = `${process.env.API_URL!}/posters/${poster.id}/print.pdf`
@@ -30,7 +26,7 @@ export async function index({ api, knex, jwt }: RouteContext) {
 }
 
 // GET /posters/:id
-export async function show({ req, api, knex, jwt, queries }: RouteContext) {
+export async function show({ req, api, queries }: RouteContext) {
   let poster = await queries.posterWithOptions(parseInt(req.params.id, 10))
   if (!poster) throw new NotFound('poster not found')
 
@@ -122,10 +118,6 @@ export async function votes({ req, api, queries }: RouteContext) {
   api.sendData(await queries.posterVotes(id))
 }
 
-const posterDir = join(__dirname, '../../static/poster/simple')
-const posterBack = readFileSync(join(posterDir, 'back.png'), 'base64')
-const posterFront = readFileSync(join(posterDir, 'front.png'), 'base64')
-
 // GET /posters/:id/print.pdf
 export async function print({ req, res, queries }: RouteContext) {
   let poster = await queries.posterWithOptions(parseInt(req.params.id, 10))
@@ -155,7 +147,7 @@ export async function print({ req, res, queries }: RouteContext) {
   doc.rect(0, 0, doc.page.width, doc.page.height).fill('#' + poster.colour)
 
   // Background image
-  doc.image(join(posterDir, 'front.png'), 0, 0, { width, height })
+  doc.image(join(posterAssetDir, 'front.png'), 0, 0, { width, height })
 
   // Question text
   doc.fill('white')
@@ -233,7 +225,7 @@ export async function print({ req, res, queries }: RouteContext) {
   const voteUrl = `${process.env.WEB_URL!}/posters/${poster.id}`
 
   doc.addPage()
-  doc.image(join(posterDir, 'back.png'), 0, 0, { width, height })
+  doc.image(join(posterAssetDir, 'back.png'), 0, 0, { width, height })
   doc.fontSize(18)
   doc.fill('#888888')
   doc.list(

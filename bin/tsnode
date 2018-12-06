@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+EXECUTOR=ts
+node -r ts-node/register -r dotenv/config $@

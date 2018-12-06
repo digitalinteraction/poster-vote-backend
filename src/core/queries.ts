@@ -1,7 +1,7 @@
 import * as Knex from 'knex'
 
-import { Poster, PosterOption, Device, DeviceCount } from 'src/types'
-import { Table } from 'src/const'
+import { Poster, PosterOption } from '../types'
+import { Table } from '../const'
 
 export type PosterWithOptions = Poster & { options: PosterOption[] }
 
@@ -18,7 +18,6 @@ export type Queries = {
   with: (knex: Knex) => Queries
   posterWithOptions: (id: number) => Promise<PosterWithOptions | null>
   posterVotes: (id: number) => Promise<PosterOptionVote[]>
-  currentUser: (id: number) => Promise<any>
 }
 
 export const makeQueries = (knex: Knex): Queries => ({
@@ -64,9 +63,5 @@ export const makeQueries = (knex: Knex): Queries => ({
     })
 
     return votes
-  },
-
-  async currentUser(id: number) {
-    // let user = await knex(Table)
   }
 })
