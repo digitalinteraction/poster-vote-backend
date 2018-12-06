@@ -7,6 +7,18 @@ It also has a CLI to perform migrations and perform other useful tasks.
 
 [What is PosterVote?](https://github.com/poster-vote/about)
 
+## Table of Contents
+
+- [Development](#development)
+  - [Setup](#setup)
+  - [Regular use](#regular-use)
+  - [Code Structure](#code-structure)
+  - [Testing](#testing)
+  - [Formatting](#formatting)
+- [Deployment](#deployment)
+  - [Building the image](#building-the-image)
+  - [Using the image](#using-the-image)
+
 ## Development
 
 ### Setup
