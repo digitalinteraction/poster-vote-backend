@@ -6,12 +6,11 @@
   "scripts": {
     "build": "tsc",
     "coverage": "nyc --reporter=html npm test -s",
-    "lint": "npx tslint -p .",
     "mysql": "docker run -it --rm --name dev_mysql -v mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -p 3306:3306 mysql:5.7",
-    "preversion": "npm run lint -s && npm test -s && tsc && git add -A dist",
-    "prettier": "prettier --write */**/*.{js,ts,json,css,md}",
+    "preversion": "npm test -s && tsc && git add dist",
+    "prettier": "prettier --write ./**/*.{js,ts,json,css,md}",
     "start": "node -r tsconfig-paths/register -r dotenv/config dist",
-    "test": "mocha -r ts-node/register -r tsconfig-paths/register 'spec/**/*.ts'",
+    "test": "mocha -r ts-node/register -r tsconfig-paths/register 'src/**/*Spec.ts'",
     "dev": "node -r ts-node/register -r tsconfig-paths/register -r dotenv/config src",
     "watch": "nodemon -w src -e ts -x 'npm run dev -s' -q src/index.ts"
   },
@@ -37,7 +36,7 @@
     "commander": "^2.19.0",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^6.1.0",
+    "dotenv": "^6.2.0",
     "download": "^7.1.0",
     "escape-string-regexp": "^1.0.5",
     "express": "^4.16.4",
@@ -48,7 +47,7 @@
     "pdfkit": "^0.8.3",
     "pug": "^2.0.3",
     "tsconfig-paths": "^3.7.0",
-    "twilio": "^3.24.0",
+    "twilio": "^3.25.0",
     "valid-env": "^0.1.2"
   },
   "devDependencies": {
@@ -65,7 +64,7 @@
     "@types/knex": "^0.15.1",
     "@types/mocha": "^5.2.5",
     "@types/mysql": "^2.15.5",
-    "@types/node": "^10.12.10",
+    "@types/node": "^10.12.12",
     "@types/pdfkit": "^0.7.36",
     "chai": "^4.2.0",
     "husky": "^1.2.0",
@@ -73,7 +72,7 @@
     "mocha": "^5.2.0",
     "nodemon": "^1.18.7",
     "nyc": "^13.1.0",
-    "prettier": "1.15.2",
+    "prettier": "1.15.3",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.1"
   }
