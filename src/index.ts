@@ -42,7 +42,6 @@ export function setupEnvironment() {
   // Go through each variable but only set if it is already unset
   Object.entries(defaultEnv).forEach(([name, defaultValue]) => {
     if (process.env[name] !== undefined) return
-    console.log('set', name, defaultValue)
     process.env[name] = defaultValue
   })
 }
