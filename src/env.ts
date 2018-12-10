@@ -14,10 +14,15 @@ export const environments = {
   testing: {
     EXECUTOR: 'js',
     API_URL: 'http://localhost:3000',
-    WEB_URL: 'http://localhost:3000'
-    // DB_TYPE: 'sqlite3',
-    // DB_URI: ':memory:'
+    WEB_URL: 'http://localhost:3000',
     // FSK_CMD: 'echo "mock_fsk"',
+    JWT_SECRET: 'testing_jwt_secret',
+    COOKIE_SECRET: 'testing_cookie_secret',
+    HASH_SECRET: 'testing_hash_secret',
+    ADMIN_EMAIL: 'testing@example.com',
+    SENDGRID_API_KEY: 'testing_sendgrid_api_key',
+    REG_TWILIO_NUMBER: '07880 123456',
+    VOTE_TWILIO_NUMBER: '07880 654321'
   },
 
   production: {

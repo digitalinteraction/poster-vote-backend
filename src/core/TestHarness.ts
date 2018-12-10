@@ -2,12 +2,18 @@ import { setupEnvironment } from '../env'
 import { MigrationManager } from './db'
 import Knex from 'knex'
 import { Table } from '../const'
+import { Route } from '../types'
+import express from 'express'
+import supertest from 'supertest'
+import { applyMiddleware, applyHandler } from './server'
+import { makeQueries } from './queries'
+import { Api } from 'api-formatter'
+
+export type TestRoute = supertest.SuperTest<supertest.Test>
 
 export class TestHarness {
   knex: Knex
   mm: MigrationManager
-
-  trx?: Knex
 
   static async create(): Promise<TestHarness> {
     let harness = new TestHarness()
@@ -44,5 +50,26 @@ export class TestHarness {
     return this.knex.transaction(trx => {
       return Promise.all(Object.values(Table).map(table => trx(table).delete()))
     })
+  }
+
+  mockRoute(path: string, route: Route, jwt: any = undefined) {
+    let app = express()
+    applyMiddleware(app)
+
+    let expressRoute: express.Handler = async (req, res, next) => {
+      try {
+        let knex = this.knex
+        let queries = await makeQueries(knex)
+        let api = (req as any).api as Api
+        await route({ req, res, next, knex, jwt, queries, api })
+      } catch (error) {
+        next(error)
+      }
+    }
+
+    app.use(path, expressRoute)
+
+    applyHandler(app)
+    return supertest(app)
   }
 }

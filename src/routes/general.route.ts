@@ -4,6 +4,7 @@
 
 import { RouteContext } from '../types'
 
+// GET: /
 export function hello({ api }: RouteContext) {
   api.sendData('Hello, World!')
 }

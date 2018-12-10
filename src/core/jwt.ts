@@ -9,25 +9,30 @@ import { cookieName } from '../const'
 import { hashEmail } from '../core/emails'
 
 /** Config for express-jwt to optionally verify a token from the request */
-export const jwtParserConfig: jwtParser.Options = {
-  secret: process.env.JWT_SECRET!,
-  credentialsRequired: false,
-  getToken(req) {
-    let { headers = {}, signedCookies = {}, query = {} } = req
+export function jwtParserConfig(): jwtParser.Options {
+  return {
+    secret: process.env.JWT_SECRET!,
+    credentialsRequired: false,
+    getToken(req) {
+      let { headers = {}, signedCookies = {}, query = {} } = req
 
-    // Try a signed cookie
-    if (signedCookies[cookieName]) {
-      return req.signedCookies[cookieName]
+      // Try a signed cookie
+      if (signedCookies[cookieName]) {
+        return req.signedCookies[cookieName]
+      }
+
+      // Try an auth header, Authorization: Bearer
+      if (
+        headers.authorization &&
+        headers.authorization.startsWith('Bearer ')
+      ) {
+        return headers.authorization.split(' ')[1]
+      }
+
+      // Try the query string, ?token=
+      if (query.token) return query.token
+      return null
     }
-
-    // Try an auth header, Authorization: Bearer
-    if (headers.authorization && headers.authorization.startsWith('Bearer ')) {
-      return headers.authorization.split(' ')[1]
-    }
-
-    // Try the query string, ?token=
-    if (query.token) return query.token
-    return null
   }
 }
 

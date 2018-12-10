@@ -64,6 +64,7 @@
     "@types/mysql": "^2.15.5",
     "@types/node": "^10.12.12",
     "@types/pdfkit": "^0.7.36",
+    "@types/supertest": "^2.0.6",
     "chai": "^4.2.0",
     "gen-md-toc": "^0.1.0",
     "husky": "^1.2.0",
@@ -73,6 +74,7 @@
     "nyc": "^13.1.0",
     "prettier": "1.15.3",
     "sqlite3": "^4.0.4",
+    "supertest": "^3.3.0",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.1"
   }

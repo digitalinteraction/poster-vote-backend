@@ -51,7 +51,7 @@ export function applyMiddleware(app: express.Application) {
   app.use(bodyParser.json())
   app.use(cookieParser(process.env.COOKIE_SECRET!))
   app.use(Api.middleware({}))
-  app.use(jwtParser(jwtParserConfig))
+  app.use(jwtParser(jwtParserConfig()))
   app.use(
     cors({
       origin: process.env.WEB_URL,
