@@ -7,6 +7,8 @@ It also has a CLI to perform migrations and perform other useful tasks.
 
 [What is PosterVote?](https://github.com/poster-vote/about)
 
+<!-- toc-head -->
+
 ## Table of Contents
 
 - [Development](#development)
@@ -18,6 +20,8 @@ It also has a CLI to perform migrations and perform other useful tasks.
 - [Deployment](#deployment)
   - [Building the image](#building-the-image)
   - [Using the image](#using-the-image)
+
+<!-- toc-tail -->
 
 ## Development
 
