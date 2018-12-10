@@ -10,7 +10,7 @@ import chalk from 'chalk'
 let knex = dbFromEnvironment()
 
 let commandRan = false
-let migrator = new MigrationManager(knex)
+let migrator = new MigrationManager(knex, true)
 
 program.version('0.1.0')
 

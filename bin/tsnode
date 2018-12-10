@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-EXECUTOR=ts
+export EXECUTOR=ts
 node -r ts-node/register -r dotenv/config $@

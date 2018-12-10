@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "coverage": "nyc --reporter=html bin/test",
+    "coverage": "nyc --reporter=html -n src -e .ts bin/test",
     "mysql": "docker run -it --rm --name dev_mysql -v mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -p 3306:3306 mysql:5.7",
     "preversion": "npm test -s && tsc && git add dist",
     "prettier": "prettier --write ./**/*.{js,ts,json,css,md}",
@@ -72,6 +72,7 @@
     "nodemon": "^1.18.7",
     "nyc": "^13.1.0",
     "prettier": "1.15.3",
+    "sqlite3": "^4.0.4",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.1"
   }

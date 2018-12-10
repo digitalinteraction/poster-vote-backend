@@ -33,7 +33,7 @@ export function dbFromEnvironment(): Knex {
 }
 
 export class MigrationManager {
-  constructor(public knex: Knex) {}
+  constructor(public knex: Knex, public outputMigrations = false) {}
 
   /** Setup the migration manager if it isn't already, adding migrations table */
 
@@ -48,9 +48,9 @@ export class MigrationManager {
     })
   }
 
-  // async teardown(): Promise<void> {
-  //   return this.knex.schema.dropTable(Table.migration)
-  // }
+  async teardown(): Promise<void> {
+    return this.knex.schema.dropTable(Table.migration)
+  }
 
   async currentVersion(): Promise<string | undefined> {
     let latest: Migration = await this.knex(Table.migration)
@@ -90,12 +90,16 @@ export class MigrationManager {
         migrators = pivot === -1 ? migrators : migrators.slice(pivot + 1)
       }
 
-      console.log(`${migrators.length} migrations to perform`)
+      if (this.outputMigrations) {
+        console.log(`${migrators.length} migrations to perform`)
+      }
 
       // Run each migration
       for (let migrator of migrators) {
         await this.knex.transaction(trx => this.doMigration(trx, migrator))
-        console.log(check, migrator.name)
+        if (this.outputMigrations) {
+          console.log(check, migrator.name)
+        }
       }
     } catch (error) {
       console.log(error)
@@ -131,13 +135,17 @@ export class MigrationManager {
         console.error(cross, 'Invalid migrator:', migration.name)
       }
 
-      console.log(`${records.length} migrations to reset`)
+      if (this.outputMigrations) {
+        console.log(`${records.length} migrations to reset`)
+      }
 
       // Run through each migration, undoing them in a transaction
       for (let migration of records) {
         let migrator = migrators.get(migration.name)!
         await this.knex.transaction(trx => this.undoMigration(trx, migrator))
-        console.log(check, migrator.name)
+        if (this.outputMigrations) {
+          console.log(check, migrator.name)
+        }
       }
     } catch (error) {
       console.log(cross, error.message)
