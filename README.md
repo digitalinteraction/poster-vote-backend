@@ -58,6 +58,9 @@ npm run watch
 # Run unit tests
 #  -> It looks for files that end with '.spec.ts', e.g. MyApp.spec.ts
 npm test -s
+
+# Generate the table of contents for this readme
+npx gen-md-toc -i
 ```
 
 ### Code Structure
