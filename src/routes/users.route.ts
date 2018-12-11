@@ -5,17 +5,19 @@
 import { RouteContext } from '../types'
 import { cookieName } from '../const'
 import { BadParams, Redirect } from '../core/errors'
-import { isEmail, sendgrid } from '../core/emails'
+import { isEmail, sendEmail } from '../core/emails'
 import { jwtSign, jwtVerify, makeUserJwt } from '../core/jwt'
 
 // Note: its safe to cast because they are required environment variables
 const apiUrl = process.env.API_URL as string
 const webUrl = process.env.WEB_URL as string
 
+// GET: /users
 export async function me({ api, jwt }: RouteContext) {
   api.sendData({ usr: jwt ? jwt.usr : null })
 }
 
+// POST: /users
 export async function request({ req, res, api }: RouteContext) {
   type Params = { email: string }
   let { email } = BadParams.check<Params>(req.body, { email: 'string' })
@@ -34,7 +36,7 @@ export async function request({ req, res, api }: RouteContext) {
     })
   })
 
-  await sendgrid.send({
+  await sendEmail({
     to: email,
     from: process.env.ADMIN_EMAIL!,
     subject: 'PosterVote login',
@@ -45,6 +47,7 @@ export async function request({ req, res, api }: RouteContext) {
   api.sendData('ok')
 }
 
+// GET: /check
 export function check({ req, res }: RouteContext) {
   type Params = { token: string }
   let { token } = BadParams.check<Params>(req.query, { token: 'string' })
@@ -56,6 +59,7 @@ export function check({ req, res }: RouteContext) {
   throw new Redirect(webUrl + '/posters')
 }
 
+// DELETE: /users
 export function logout({ res }: RouteContext) {
   res.clearCookie(cookieName)
   throw new Redirect('/')

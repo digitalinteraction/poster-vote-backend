@@ -4,6 +4,7 @@
 
 import crypto from 'crypto'
 import sendgrid from '@sendgrid/mail'
+import { MailData } from '@sendgrid/helpers/classes/mail'
 
 /** Securely hash an email to be stored / checked */
 export const hashEmail = (email: string) =>
@@ -17,4 +18,12 @@ export const isEmail = (value: string) => /^\S+@\S+$/i.test(value)
 
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY!)
 
-export { sendgrid }
+export async function sendEmail(data: MailData): Promise<any> {
+  if (process.env.NODE_ENV === 'testing') {
+    return testEmails.add(data.to as string)
+  } else {
+    return sendgrid.send(data) as any
+  }
+}
+
+export const testEmails = new Set<string>()

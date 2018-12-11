@@ -2,25 +2,22 @@ import { TestHarness, TestRoute } from '../../core/TestHarness'
 import { hello } from '../general.route'
 import { expect } from 'chai'
 
-let harness: TestHarness
-let route: TestRoute
+describe('General', () => {
+  let harness: TestHarness
 
-before(async () => {
-  harness = await TestHarness.create()
-  route = harness.mockRoute('/', hello)
-  await harness.setup()
-})
+  before(async () => {
+    harness = await TestHarness.create()
+  })
 
-beforeEach(async () => {
-  await harness.clear()
-})
+  after(async () => {
+    await harness.teardown()
+  })
 
-after(async () => {
-  await harness.teardown()
-})
-
-describe('general.route', () => {
-  describe('GET /', () => {
+  describe('general.hello', () => {
+    let route: TestRoute
+    before(async () => {
+      route = harness.mockRoute('/', hello)
+    })
     it('should return a http 200', async () => {
       let res = await route.get('/')
       expect(res.status).to.equal(200)

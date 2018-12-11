@@ -1,3 +1,4 @@
+import { join } from 'path'
 import { setupEnvironment } from '../env'
 import { MigrationManager } from './db'
 import Knex from 'knex'
@@ -6,8 +7,11 @@ import { Route } from '../types'
 import express from 'express'
 import supertest from 'supertest'
 import { applyMiddleware, applyHandler } from './server'
+import { jwtSign, jwtVerify, makeUserJwt } from './jwt'
 import { makeQueries } from './queries'
 import { Api } from 'api-formatter'
+
+export { testEmails } from './emails'
 
 export type TestRoute = supertest.SuperTest<supertest.Test>
 
@@ -56,6 +60,10 @@ export class TestHarness {
     let app = express()
     applyMiddleware(app)
 
+    // Setup rendering
+    app.set('views', join(__dirname, '../views'))
+    app.set('view engine', 'pug')
+
     let expressRoute: express.Handler = async (req, res, next) => {
       try {
         let knex = this.knex
@@ -70,6 +78,19 @@ export class TestHarness {
     app.use(path, expressRoute)
 
     applyHandler(app)
+
     return supertest(app)
+  }
+
+  signJwt(payload: any): string {
+    return jwtSign(payload)
+  }
+
+  verifyJwt(token: string): string | object {
+    return jwtVerify(token)
+  }
+
+  userJwt(email: string): string {
+    return makeUserJwt(email)
   }
 }

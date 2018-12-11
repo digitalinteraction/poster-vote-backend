@@ -20,7 +20,7 @@ import { Redirect, HttpError } from '../core/errors'
 import { jwtParserConfig } from '../core/jwt'
 import { makeQueries } from '../core/queries'
 
-type ErrorHandler = (
+export type ExpressErrorHandler = (
   err: any,
   req: express.Request,
   res: express.Response,
@@ -91,7 +91,7 @@ export function applyRoutes(app: express.Application, knex: Knex) {
 
 export function applyHandler(app: express.Application) {
   // Add error handler
-  let handler: ErrorHandler = (err, req, res, _next) => {
+  let handler: ExpressErrorHandler = (err, req, res, _next) => {
     let api = (req as any).api as Api
 
     // Process iterables / strings into an array of messages
