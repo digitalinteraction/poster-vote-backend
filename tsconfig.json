@@ -13,14 +13,10 @@
     "stripInternal": true,
     "strict": true,
     "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "checkJs": true
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]

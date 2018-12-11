@@ -3,23 +3,31 @@ import { MigrationManager } from '../db'
 import { expect } from 'chai'
 import { Table } from '../../const'
 
-let knex: Knex
-let mm: MigrationManager
-
-beforeEach(async () => {
-  knex = Knex({
-    client: 'sqlite3',
-    connection: { filename: ':memory:' },
-    useNullAsDefault: true
-  })
-  mm = new MigrationManager(knex)
-})
-
-afterEach(async () => {
-  await knex.destroy()
-})
-
 describe('MigrationManager', () => {
+  let knex: Knex
+  let mm: MigrationManager
+
+  beforeEach(async () => {
+    try {
+      knex = Knex({
+        client: 'sqlite3',
+        connection: { filename: ':memory:' },
+        useNullAsDefault: true
+      })
+      mm = new MigrationManager(knex)
+    } catch (err) {
+      console.log(err)
+    }
+  })
+
+  afterEach(async () => {
+    try {
+      await knex.destroy()
+    } catch (err) {
+      console.log(err)
+    }
+  })
+
   describe('#setup', () => {
     it('should create the migrations table', async () => {
       await mm.setup()

@@ -96,8 +96,19 @@ export class TestHarness {
   }
 }
 
+async function insertRows(knex: Knex, table: string, records: any[]) {
+  await knex(table).insert(records)
+  let rows: any[] = await knex(table).select('id')
+  return rows.map(o => o.id)
+}
+
+// async function getRowIds(table: string, knex: Knex) {
+//   let rows: any[] = await knex(table).select('id')
+//   return rows.map(o => o.id)
+// }
+
 export async function seedPosters(knex: Knex, userJwt: string) {
-  let [poster_id] = await knex(Table.poster).insert({
+  const [poster_id] = await knex(Table.poster).insert({
     name: 'name',
     question: 'question',
     code: 123456,
@@ -129,11 +140,61 @@ export async function seedPosters(knex: Knex, userJwt: string) {
   })
 
   // Add some options to our poster
-  await knex(Table.posterOption).insert([
-    { text: 'Option A', value: 1, poster_id },
-    { text: 'Option B', value: 2, poster_id },
-    { text: 'Option C', value: 3, poster_id }
+  const [optionA, optionB, optionC] = await insertRows(
+    knex,
+    Table.posterOption,
+    [
+      { text: 'Option A', value: 1, poster_id },
+      { text: 'Option B', value: 2, poster_id },
+      { text: 'Option C', value: 3, poster_id }
+    ]
+  )
+
+  // Create some devices
+  const deviceIds = await insertRows(knex, Table.device, [
+    { uuid: 1 },
+    { uuid: 2 }
   ])
+
+  const [devicePosterA, devicePosterB] = await insertRows(
+    knex,
+    Table.devicePoster,
+    [
+      { poster_id, device_id: deviceIds[0] },
+      { poster_id, device_id: deviceIds[1] }
+    ]
+  )
+
+  const makeCount = (v: number, devicePosterId: number, optionId: number) => ({
+    value: v,
+    poster_option_id: optionId,
+    device_poster_id: devicePosterId
+  })
+
+  // Create the initial counts
+  await knex(Table.deviceCount).insert([
+    makeCount(0, devicePosterA, optionA),
+    makeCount(0, devicePosterA, optionB),
+    makeCount(0, devicePosterA, optionC),
+    makeCount(10, devicePosterB, optionA),
+    makeCount(15, devicePosterB, optionB),
+    makeCount(20, devicePosterB, optionC)
+  ])
+
+  // Create the final counts
+  await knex(Table.deviceCount).insert([
+    makeCount(5, devicePosterA, optionA),
+    makeCount(10, devicePosterA, optionB),
+    makeCount(15, devicePosterA, optionC),
+    makeCount(30, devicePosterB, optionA),
+    makeCount(25, devicePosterB, optionB),
+    makeCount(20, devicePosterB, optionC)
+  ])
+
+  // Total votes:
+  // A - 25
+  // B - 20
+  // C - 15
 
   return poster_id
 }

@@ -134,4 +134,21 @@ describe('Posters', () => {
       expect(poster.active).to.equal(0)
     })
   })
+
+  describe('posters.votes', () => {
+    let route = harness.mockRoute('/:id', posters.votes)
+
+    it('should return a http/200', async () => {
+      let res = await route.get('/' + posterId)
+      expect(res.status).to.equal(200)
+    })
+    it('should returns sum votes', async () => {
+      let res = await route.get('/' + posterId)
+      let votes = res.body.data
+
+      expect(votes[0].vote).to.equal(25)
+      expect(votes[1].vote).to.equal(20)
+      expect(votes[2].vote).to.equal(15)
+    })
+  })
 })

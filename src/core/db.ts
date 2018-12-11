@@ -12,8 +12,6 @@ import validateEnv = require('valid-env')
 
 const readdir = promisify(fs.readdir)
 
-const migrationExt = '.' + (process.env.EXECUTOR || 'js')
-
 type Migration = Record & {
   name: string
 }
@@ -33,6 +31,8 @@ export function dbFromEnvironment(): Knex {
 }
 
 export class MigrationManager {
+  migrationExt = '.' + (process.env.EXECUTOR || 'js')
+
   constructor(public knex: Knex, public outputMigrations = false) {}
 
   /** Setup the migration manager if it isn't already, adding migrations table */
@@ -41,7 +41,7 @@ export class MigrationManager {
     let hasTable = await this.knex.schema.hasTable(Table.migration)
     if (hasTable) return
 
-    return this.knex.schema.createTable(Table.migration, table => {
+    await this.knex.schema.createTable(Table.migration, table => {
       table.increments()
       table.timestamps(true, true)
       table.string('name')
@@ -65,12 +65,12 @@ export class MigrationManager {
     let basePath = join(__dirname, '../migrations')
     let paths = await readdir(basePath)
 
-    paths = paths.filter(p => p.endsWith(migrationExt))
+    paths = paths.filter(p => p.endsWith(this.migrationExt))
 
     return Promise.all(
       paths.map(async file => {
         let m = await import(join(basePath, file))
-        let name = file.replace(migrationExt, '')
+        let name = file.replace(this.migrationExt, '')
         return Object.assign({ name }, m)
       })
     )
