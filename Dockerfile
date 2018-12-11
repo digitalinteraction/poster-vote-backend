@@ -7,7 +7,7 @@ COPY ["package.json", "package-lock.json", "tsconfig.json", "/app/"]
 # (installs production deps., clones them then installs dev)
 FROM base as builder
 ENV NODE_ENV development
-RUN npm ci > /dev/null
+RUN npm ci
 COPY src /app/src
 RUN npm run build -s
 COPY bin /app/bin
@@ -19,7 +19,8 @@ COPY bin /app/bin
 
 # [3] From the base, copy the dist/ and production node modules in and start
 FROM builder as dist
+COPY --from=openlab/fsk /usr/bin/fsk /usr/bin/fsk
 ENV NODE_ENV production
-RUN npm ci > /dev/null
+RUN npm ci
 VOLUME /app/uploads
 CMD [ "npm", "start", "-s" ]
