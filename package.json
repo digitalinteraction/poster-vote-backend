@@ -7,7 +7,7 @@
     "build": "tsc",
     "coverage": "nyc --reporter=html -n src -e .ts bin/test",
     "mysql": "docker run -it --rm --name dev_mysql -v mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -p 3306:3306 mysql:5.7",
-    "preversion": "npm test -s && tsc && git add dist",
+    "preversion": "npm test -s",
     "prettier": "prettier --write ./**/*.{js,ts,json,css,md}",
     "start": "node -r dotenv/config dist",
     "test": "bin/test",
