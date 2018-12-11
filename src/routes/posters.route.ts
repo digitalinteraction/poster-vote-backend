@@ -3,7 +3,7 @@
  */
 
 import { RouteContext, Poster } from '../types'
-import { posterAssetDir } from '../const'
+import { posterAssetDir, Table } from '../const'
 import { NotFound, BadParams, BadAuth } from '../core/errors'
 import PDFDocument = require('pdfkit')
 import { join } from 'path'
@@ -114,12 +114,25 @@ export async function destroy({ req, jwt, knex, api }: RouteContext) {
 }
 
 // GET /posters/:id/votes
-export async function votes({ req, api, queries }: RouteContext) {
+export async function votes({ req, api, knex, queries }: RouteContext) {
   let id = parseInt(req.params.id, 10)
   if (Number.isNaN(id)) throw BadParams.shouldBe('id', 'number')
 
+  let updatedResult = await knex(Table.posterOption)
+    .max({ max: 'device_counts.created_at' })
+    .innerJoin(
+      Table.deviceCount,
+      'device_counts.poster_option_id',
+      'poster_options.id'
+    )
+    .where('poster_options.poster_id', id)
+    .groupBy('poster_options.poster_id')
+
   // Fetch & send the votes
-  api.sendData(await queries.posterVotes(id))
+  api.sendData({
+    lastUpdate: updatedResult[0] ? updatedResult[0].max : null,
+    votes: await queries.posterVotes(id)
+  })
 }
 
 // GET /posters/:id/print.pdf

@@ -144,8 +144,9 @@ describe('Posters', () => {
     })
     it('should returns sum votes', async () => {
       let res = await route.get('/' + posterId)
-      let votes = res.body.data
+      let votes = res.body.data.votes
 
+      expect(res.body.data.lastUpdate).to.be.a('string')
       expect(votes[0].vote).to.equal(25)
       expect(votes[1].vote).to.equal(20)
       expect(votes[2].vote).to.equal(15)
