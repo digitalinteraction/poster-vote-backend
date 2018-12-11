@@ -7,14 +7,14 @@ export const environments = {
   development: {
     EXECUTOR: 'js',
     API_URL: 'http://localhost:3000',
-    WEB_URL: 'http://localhost:3000',
+    WEB_URL: 'http://localhost:8080',
     FSK_CMD: 'docker run -i --rm openlab/fsk'
   },
 
   testing: {
     EXECUTOR: 'js',
     API_URL: 'http://localhost:3000',
-    WEB_URL: 'http://localhost:3000',
+    WEB_URL: 'http://localhost:8080',
     // FSK_CMD: 'echo "mock_fsk"',
     JWT_SECRET: 'testing_jwt_secret',
     COOKIE_SECRET: 'testing_cookie_secret',
