@@ -3,15 +3,7 @@ import { hello } from '../general.route'
 import { expect } from 'chai'
 
 describe('General', () => {
-  let harness: TestHarness
-
-  before(async () => {
-    harness = await TestHarness.create()
-  })
-
-  after(async () => {
-    await harness.teardown()
-  })
+  let harness = TestHarness.withMochaHooks()
 
   describe('general.hello', () => {
     let route: TestRoute

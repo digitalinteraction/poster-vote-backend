@@ -3,15 +3,7 @@ import { me, request, check, logout } from '../users.route'
 import { expect } from 'chai'
 
 describe('Users', () => {
-  let harness: TestHarness
-
-  before(async () => {
-    harness = await TestHarness.create()
-  })
-
-  after(async () => {
-    await harness.teardown()
-  })
+  let harness = TestHarness.withMochaHooks()
 
   describe('users.me', () => {
     it('should return a http/200', async () => {
@@ -59,7 +51,7 @@ describe('Users', () => {
       let token = harness.userJwt('users.check.2@test.io')
       let res = await route.get(`/?token=${token}`)
       let cookie = res.header['set-cookie']
-      expect(cookie).to.have.lengthOf(1)
+      expect(cookie).to.be.length(1)
       expect(cookie[0]).to.include('postervote_jwt=')
     })
   })
@@ -78,7 +70,7 @@ describe('Users', () => {
     it('should set a cookie', async () => {
       let res = await route.get('/')
       let cookie = res.header['set-cookie']
-      expect(cookie).to.have.lengthOf(1)
+      expect(cookie).to.be.length(1)
       expect(cookie[0]).to.include('postervote_jwt=')
       expect(cookie[0]).to.include('Expires=Thu, 01 Jan 1970')
     })

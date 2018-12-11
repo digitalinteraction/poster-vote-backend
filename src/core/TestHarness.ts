@@ -19,9 +19,10 @@ export class TestHarness {
   knex: Knex
   mm: MigrationManager
 
-  static async create(): Promise<TestHarness> {
+  static withMochaHooks(): TestHarness {
     let harness = new TestHarness()
-    await harness.setup()
+    before(() => harness.setup())
+    after(() => harness.teardown())
     return harness
   }
 
@@ -93,4 +94,46 @@ export class TestHarness {
   userJwt(email: string): string {
     return makeUserJwt(email)
   }
+}
+
+export async function seedPosters(knex: Knex, userJwt: string) {
+  let [poster_id] = await knex(Table.poster).insert({
+    name: 'name',
+    question: 'question',
+    code: 123456,
+    creator_hash: userJwt,
+    colour: 'C0FFEE',
+    owner: 'Geoff Testington',
+    contact: 'geoff@test.io',
+    active: true
+  })
+
+  // An inactive poster
+  await knex(Table.poster).insert({
+    name: 'name',
+    question: 'question',
+    code: 123456,
+    creator_hash: userJwt,
+    colour: 'C0FFEE',
+    active: false
+  })
+
+  // A poster for a different user
+  await knex(Table.poster).insert({
+    name: 'name',
+    question: 'question',
+    code: 123456,
+    creator_hash: 'an_non_active_user',
+    colour: 'C0FFEE',
+    active: false
+  })
+
+  // Add some options to our poster
+  await knex(Table.posterOption).insert([
+    { text: 'Option A', value: 1, poster_id },
+    { text: 'Option B', value: 2, poster_id },
+    { text: 'Option C', value: 3, poster_id }
+  ])
+
+  return poster_id
 }

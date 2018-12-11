@@ -96,7 +96,7 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
   api.sendData(poster)
 }
 
-// DELETE /posters
+// DELETE /posters/:id
 export async function destroy({ req, jwt, knex, api }: RouteContext) {
   if (!jwt) throw new BadAuth()
 
