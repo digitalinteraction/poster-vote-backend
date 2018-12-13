@@ -130,6 +130,10 @@ Some variables are set by default when in `development` mode, below is the avail
 | REG_TWILIO_NUMBER  | Your Twilio phone number used to register posters                                    |
 | VOTE_TWILIO_NUMBER | Your Twilio phone number used to submit votes                                        |
 
+## Future Work
+
+- Run database migrations on container startup
+
 ---
 
 > The code on https://github.com/poster-vote/node-backend is a mirror of https://openlab.ncl.ac.uk/gitlab/poster-vote/node-backend
