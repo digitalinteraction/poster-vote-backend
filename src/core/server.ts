@@ -111,6 +111,7 @@ export function applyHandler(app: express.Application) {
     if (err instanceof Error) {
       console.error('Caught error', tidyError(err) + '\n')
       if (process.env.NODE_ENV === 'development') {
+        console.log(err.stack)
         return api.sendFail(err.message)
       }
     }
