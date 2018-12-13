@@ -26,7 +26,8 @@ export const environments = {
   },
 
   production: {
-    EXECUTOR: 'js'
+    EXECUTOR: 'js',
+    FSK_CMD: 'fsk'
   }
 } as DefaultEnvMap
 
