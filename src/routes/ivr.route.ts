@@ -67,7 +67,7 @@ export function registerStart({ res }: RouteContext) {
   })
 
   gather.say(
-    'Welcome to poster vote device registration. Please enter the poster number followed by the pound sign.'
+    'Welcome to poster vote device registration.\r\nPlease enter the poster number followed by the pound sign.'
   )
 
   voice.say(`I didn't catch that, please try again`)
@@ -263,7 +263,7 @@ export async function voteFinish({ req, res, knex, queries }: RouteContext) {
     voice.say(
       `We have recorded the votes and will send you them in an SMS, thank you.`
     )
-    voice.sms(smsLines.join('\r\n'))
+    voice.sms(smsLines.join('\n'))
   } catch (error) {
     console.log(error)
     voice.say(`Sorry, we couldn't process that, starting again.`)
