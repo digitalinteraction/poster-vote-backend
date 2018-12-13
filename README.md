@@ -133,6 +133,7 @@ Some variables are set by default when in `development` mode, below is the avail
 ## Future Work
 
 - Run database migrations on container startup
+- Give the poster pdf a name
 
 ---
 
