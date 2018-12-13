@@ -21,6 +21,7 @@ COPY bin /app/bin
 FROM builder as dist
 COPY --from=openlab/fsk /usr/bin/fsk /usr/bin/fsk
 COPY views /app/views
+COPY static /app/static
 ENV NODE_ENV production
 RUN npm ci
 VOLUME /app/uploads
