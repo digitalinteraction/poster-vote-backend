@@ -125,7 +125,7 @@ export function makeServer(knex: Knex): express.Application {
   app.set('trust proxy', 1)
 
   // Setup rendering
-  app.set('views', join(__dirname, '../views'))
+  app.set('views', join(__dirname, '../../views'))
   app.set('view engine', 'pug')
   app.locals = {}
 

@@ -20,6 +20,7 @@ COPY bin /app/bin
 # [3] From the base, copy the dist/ and production node modules in and start
 FROM builder as dist
 COPY --from=openlab/fsk /usr/bin/fsk /usr/bin/fsk
+COPY views /app/views
 ENV NODE_ENV production
 RUN npm ci
 VOLUME /app/uploads

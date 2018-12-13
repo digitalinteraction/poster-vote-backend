@@ -62,7 +62,7 @@ export class TestHarness {
     applyMiddleware(app)
 
     // Setup rendering
-    app.set('views', join(__dirname, '../views'))
+    app.set('views', join(__dirname, '../../views'))
     app.set('view engine', 'pug')
 
     let expressRoute: express.Handler = async (req, res, next) => {
