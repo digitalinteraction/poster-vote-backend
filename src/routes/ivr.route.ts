@@ -263,7 +263,7 @@ export async function voteFinish({ req, res, knex, queries }: RouteContext) {
     voice.say(
       `We have recorded the votes and will send you them in an SMS, thank you.`
     )
-    voice.sms(smsLines.join('\n'))
+    voice.sms(smsLines.join('\r\n'))
   } catch (error) {
     console.log(error)
     voice.say(`Sorry, we couldn't process that, starting again.`)
