@@ -20,6 +20,7 @@ It also has a CLI to perform migrations and perform other useful tasks.
 - [Deployment](#deployment)
   - [Building the image](#building-the-image)
   - [Using the image](#using-the-image)
+- [Future Work](#future-work)
 
 <!-- toc-tail -->
 
