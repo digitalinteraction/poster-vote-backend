@@ -239,7 +239,7 @@ export async function print({ req, res, queries }: RouteContext) {
   //
   // Back page
   //
-  const voteUrl = `${process.env.WEB_URL!}/posters/${poster.id}`
+  const voteUrl = `${link}/posters/${poster.id}`
 
   doc.addPage()
   doc.image(join(posterAssetDir, 'back.png'), 0, 0, { width, height })
@@ -247,7 +247,7 @@ export async function print({ req, res, queries }: RouteContext) {
   doc.fill('#888888')
   doc.list(
     [
-      'Print both sides of the poster if you can print two-sided, use "short edge binding"',
+      'Print both sides of the poster if you can print two-sided, use "long edge binding"',
       'Attach device to this side of the poster with the buttons facing the paper and the battery folded in',
       `Register the device by calling ${process.env
         .REG_TWILIO_NUMBER!} using code ${poster.code}`,
