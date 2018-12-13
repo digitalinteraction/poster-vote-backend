@@ -15,8 +15,11 @@ const exec = promisify(childProc.exec)
 const uploadDir = join(__dirname, '../../uploads/fsk')
 
 export function setupFskDirectories() {
-  if (fs.statSync(uploadDir).isDirectory()) return
-  fs.mkdirSync(uploadDir, { recursive: true })
+  try {
+    fs.statSync(uploadDir)
+  } catch (error) {
+    fs.mkdirSync(uploadDir, { recursive: true })
+  }
 }
 
 type VoteResult = {
