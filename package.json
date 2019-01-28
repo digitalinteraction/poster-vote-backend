@@ -11,7 +11,7 @@
     "prettier": "prettier --write ./**/*.{js,ts,json,css,md}",
     "start": "node -r dotenv/config dist",
     "test": "bin/test",
-    "watch": "nodemon -w src -e ts -x 'bin/tsnode' -q src/index.ts"
+    "dev": "nodemon -w src -e ts -x 'bin/tsnode' -q src/index.ts"
   },
   "author": "robb-j",
   "license": "ISC",
