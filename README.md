@@ -54,7 +54,7 @@ npm run mysql
 # Run a development server on your machine
 # -> This will watch for changes to .ts files and reload the server
 # -> It will fail if any config is missing in your .env
-npm run watch
+npm run dev
 
 # Run unit tests
 #  -> It looks for files that end with '.spec.ts', e.g. MyApp.spec.ts
