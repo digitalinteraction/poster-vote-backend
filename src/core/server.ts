@@ -73,6 +73,7 @@ export function applyRoutes(app: express.Application, knex: Knex) {
   app.get('/posters', r(routes.posters.index))
   app.get('/posters/:id', r(routes.posters.show))
   app.post('/posters', r(routes.posters.create))
+  app.put('/posters/:id', r(routes.posters.update))
   app.delete('/posters/:id', r(routes.posters.destroy))
   app.get('/posters/:id/votes', r(routes.posters.votes))
   app.get('/posters/:id/print.pdf', r(routes.posters.print))

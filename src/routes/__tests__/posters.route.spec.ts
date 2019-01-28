@@ -121,6 +121,37 @@ describe('Posters', () => {
     })
   })
 
+  describe('posters.update', () => {
+    let route = harness.mockRoute('/:id', posters.update, userJwt)
+
+    it('should return a http/200', async () => {
+      let res = await route.put('/' + posterId)
+      expect(res.status).to.equal(200)
+    })
+
+    it('should update the poster', async () => {
+      await route.put('/' + posterId).send({
+        name: 'newName',
+        question: 'newQuestion',
+        owner: 'newOwner',
+        contact: 'newContact',
+        colour: '#f95162'
+      })
+
+      let [updated] = await harness.knex(Table.poster).where('id', posterId)
+
+      expect(updated.name).to.equal('newName')
+      expect(updated.question).to.equal('newQuestion')
+      expect(updated.owner).to.equal('newOwner')
+      expect(updated.contact).to.equal('newContact')
+      expect(updated.colour).to.equal('f95162')
+    })
+
+    it('should update options', async () => {
+      // ...
+    })
+  })
+
   describe('posters.destroy', () => {
     let route = harness.mockRoute('/:id', posters.destroy, userJwt)
 

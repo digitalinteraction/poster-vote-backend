@@ -62,7 +62,7 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
 
   let allCodes: number[] = await knex('posters').pluck('code')
 
-  colour = colour.replace('#', '')
+  colour = colour.replace(/^#/, '')
 
   let code: number
   do {
@@ -94,6 +94,45 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
   if (poster) preparePoster(poster)
 
   api.sendData(poster)
+}
+
+// PUT /posters/:id
+export async function update({ req, jwt, knex, api }: RouteContext) {
+  if (!jwt) throw new BadAuth()
+
+  let query = {
+    id: parseInt(req.params.id),
+    creator_hash: jwt.usr,
+    active: true
+  }
+
+  let matches = await knex(Table.poster)
+    .where(query)
+    .count()
+
+  if (matches.length === 0) throw new BadAuth('You cannot edit that poster')
+
+  let changes: any = {}
+
+  const isString = (v: any) => typeof v === 'string'
+
+  if (isString(req.body.name)) changes.name = req.body.name
+  if (isString(req.body.question)) changes.question = req.body.question
+  if (isString(req.body.owner)) changes.owner = req.body.owner
+  if (isString(req.body.contact)) changes.contact = req.body.contact
+  if (isString(req.body.colour)) changes.colour = req.body.colour
+
+  if (changes.colour) {
+    changes.colour = changes.colour.replace(/^#/, '')
+  }
+
+  if (Object.keys(changes).length > 0) {
+    await knex(Table.poster)
+      .where(query)
+      .update(changes)
+  }
+
+  api.sendData({ poster: null })
 }
 
 // DELETE /posters/:id
