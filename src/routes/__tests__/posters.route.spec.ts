@@ -148,7 +148,36 @@ describe('Posters', () => {
     })
 
     it('should update options', async () => {
-      // ...
+      await route.put('/' + posterId).send({
+        options: [
+          { value: 1, text: 'Updated Option A' },
+          { value: 2, text: 'Updated Option B' },
+          { value: 3, text: 'Updated Option C' }
+        ]
+      })
+
+      let [a, b, c] = await harness
+        .knex(Table.posterOption)
+        .where('poster_id', posterId)
+        .orderBy('value')
+
+      expect(a.text).to.equal('Updated Option A')
+      expect(b.text).to.equal('Updated Option B')
+      expect(c.text).to.equal('Updated Option C')
+    })
+
+    it('should create new options', async () => {
+      await route.put('/' + posterId).send({
+        options: [{ value: 4, text: 'Option D' }]
+      })
+
+      let [d] = await harness
+        .knex(Table.posterOption)
+        .where('poster_id', posterId)
+        .where('value', 4)
+
+      expect(d).to.exist
+      expect(d.text).to.equal('Option D')
     })
   })
 

@@ -97,42 +97,72 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
 }
 
 // PUT /posters/:id
-export async function update({ req, jwt, knex, api }: RouteContext) {
+export async function update({ req, jwt, knex, queries, api }: RouteContext) {
   if (!jwt) throw new BadAuth()
 
-  let query = {
-    id: parseInt(req.params.id),
-    creator_hash: jwt.usr,
-    active: true
+  const posterId = parseInt(req.params.id)
+  const poster = await queries.posterWithOptions(posterId)
+
+  if (!poster || poster.creator_hash !== jwt.usr) {
+    throw new BadAuth('You cannot edit that poster')
   }
 
-  let matches = await knex(Table.poster)
-    .where(query)
-    .count()
-
-  if (matches.length === 0) throw new BadAuth('You cannot edit that poster')
-
-  let changes: any = {}
+  let posterChanges: any = {}
 
   const isString = (v: any) => typeof v === 'string'
 
-  if (isString(req.body.name)) changes.name = req.body.name
-  if (isString(req.body.question)) changes.question = req.body.question
-  if (isString(req.body.owner)) changes.owner = req.body.owner
-  if (isString(req.body.contact)) changes.contact = req.body.contact
-  if (isString(req.body.colour)) changes.colour = req.body.colour
+  if (isString(req.body.name)) posterChanges.name = req.body.name
+  if (isString(req.body.question)) posterChanges.question = req.body.question
+  if (isString(req.body.owner)) posterChanges.owner = req.body.owner
+  if (isString(req.body.contact)) posterChanges.contact = req.body.contact
+  if (isString(req.body.colour)) posterChanges.colour = req.body.colour
 
-  if (changes.colour) {
-    changes.colour = changes.colour.replace(/^#/, '')
+  if (posterChanges.colour) {
+    posterChanges.colour = posterChanges.colour.replace(/^#/, '')
   }
 
-  if (Object.keys(changes).length > 0) {
-    await knex(Table.poster)
-      .where(query)
-      .update(changes)
+  let updates = new Array<any>()
+
+  if (Object.keys(posterChanges).length > 0) {
+    updates.push(
+      knex(Table.poster)
+        .where('id', posterId)
+        .update(posterChanges)
+    )
   }
 
-  api.sendData({ poster: null })
+  if (Array.isArray(req.body.options)) {
+    for (let optionChange of req.body.options) {
+      if (typeof optionChange.value !== 'number') continue
+      if (typeof optionChange.text !== 'string') continue
+
+      // Add an option if it doesn't exist
+      if (optionChange.value > poster.options.length) {
+        updates.push(
+          knex(Table.posterOption).insert({
+            poster_id: posterId,
+            value: optionChange.value,
+            text: optionChange.text
+          })
+        )
+      } else {
+        // Update an option if it already exists
+        updates.push(
+          knex(Table.posterOption)
+            .where({ poster_id: posterId, value: optionChange.value })
+            .update({ text: optionChange.text })
+        )
+      }
+    }
+  }
+
+  // Perform any database changes
+  if (updates.length > 0) await Promise.all(updates)
+
+  // Send back the updated poster
+  api.sendData({
+    poster: await queries.posterWithOptions(posterId)
+  })
 }
 
 // DELETE /posters/:id
