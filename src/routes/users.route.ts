@@ -9,8 +9,6 @@ import { isEmail, sendEmail } from '../core/emails'
 import { jwtSign, jwtVerify, makeUserJwt } from '../core/jwt'
 
 // Note: its safe to cast because they are required environment variables
-const apiUrl = process.env.API_URL as string
-const webUrl = process.env.WEB_URL as string
 
 // GET: /users
 export async function me({ api, jwt }: RouteContext) {
@@ -26,7 +24,7 @@ export async function request({ req, res, api }: RouteContext) {
 
   let token = makeUserJwt(email)
 
-  let loginUrl = `${apiUrl}/check?token=${token}`
+  let loginUrl = `${process.env.API_URL}/check?token=${token}`
   let [username] = email.split('@')
 
   let emailHtml = await new Promise<string>((resolve, reject) => {
@@ -56,7 +54,7 @@ export function check({ req, res }: RouteContext) {
 
   res.cookie(cookieName, jwtSign({ usr }), { signed: true })
 
-  throw new Redirect(webUrl + '/posters')
+  throw new Redirect(process.env.WEB_URL + '/posters')
 }
 
 // DELETE: /users
