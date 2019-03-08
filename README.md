@@ -136,6 +136,7 @@ Some variables are set by default when in `development` mode, below is the avail
 - Run database migrations on container startup
 - Give the poster pdf a name
 - Hashids the posters endpoint to stop increment attack
+- Migrate to use [ChowChow](https://github.com/robb-j/chowchow), which was extracted from this
 
 ---
 
