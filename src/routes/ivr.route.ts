@@ -16,7 +16,7 @@ import { PosterWithOptions } from '../core/queries'
 //- Utils
 //-
 
-const submitMsg = `After the beep place the bottom of your phone near the speaker and hold the first two poster buttons until it beeps.`
+const submitMsg = `After the beep, hold the bottom two poster buttons then place your phone against the poster's speaker`
 
 const ivrUrl = (path: string) => `/ivr/${path}`
 
@@ -67,7 +67,7 @@ export function registerStart({ res }: RouteContext) {
   })
 
   gather.say(
-    'Welcome to poster vote device registration.\r\nPlease enter the poster number followed by the pound sign.'
+    'Welcome to poster vote device registration.\r\nPlease enter the poster number followed by the hash key'
   )
 
   voice.say(`I didn't catch that, please try again`)
@@ -252,18 +252,18 @@ export async function voteFinish({ req, res, knex, queries }: RouteContext) {
 
     // Send sms confirmation with the votes in
     let finalVotes = await queries.posterVotes(poster.id)
-    let smsLines = ['PosterVote result:']
-    smsLines.push(`Q: ${poster.question}`)
+    let smsLines = [`PosterVote Result:`]
     poster.options.forEach((option, index) => {
-      smsLines.push(`${index + 1}. ${option.text} (${finalVotes[index].vote})`)
+      smsLines.push(`${option.text}(${finalVotes[index].vote})`)
     })
+
+    let url = `${process.env.WEB_URL!}/posters/${poster.id}`
+    smsLines.push(`View at: ${url}`)
 
     // TODO: Add url-shortened link to view poster online
 
-    voice.say(
-      `We have recorded the votes and will send you them in an SMS, thank you.`
-    )
-    voice.sms(smsLines.join('\n'))
+    voice.say(`Thank you for recording votes, we will send you them as an SMS.`)
+    voice.sms(smsLines.join('\n\r'))
   } catch (error) {
     console.log(error)
     voice.say(`Sorry, we couldn't process that, starting again.`)
