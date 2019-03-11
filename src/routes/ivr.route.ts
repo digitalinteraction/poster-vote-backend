@@ -26,15 +26,11 @@ const speakableNumber = (number: number) =>
     .split('')
     .join(' ')
 
-function setupForTwiml(res: express.Response) {
+function sendTwiml(res: express.Response, voice: VoiceResponse): void {
   res.header('content-type', 'text/xml')
   res.header('Cache-Control', 'no-store, must-revalidate, max-age=0')
   res.header('Pragma', 'no-cache')
   res.header('Content-Type', 'application/xml')
-}
-
-function sendTwiml(res: express.Response, voice: VoiceResponse): void {
-  setupForTwiml(res)
   res.send(voice.toString())
 }
 
@@ -43,7 +39,7 @@ function makeCountRecords(
   votes: number[],
   devicePosterId: number
 ) {
-  let optionIds = poster.options.map(o => o.id)
+  let optionIds = poster.options.map(o => o.id).reverse()
   return votes
     .filter((_count, index) => optionIds[index])
     .map((count, index) => ({
