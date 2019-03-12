@@ -131,6 +131,36 @@ Some variables are set by default when in `development` mode, below is the avail
 | REG_TWILIO_NUMBER  | Your Twilio phone number used to register posters                                    |
 | VOTE_TWILIO_NUMBER | Your Twilio phone number used to submit votes                                        |
 
+### Using the cli
+
+You can use the api with `docker run` or `docker exec`, depending if you have a running container already.
+
+```bash
+# If you have a running container
+docker exec -it postervote_api cli --help
+
+# If you want to run without a container
+# -> Where you have a mysql container and your (^) variables in .env
+IMAGE=openlab.ncl.ac.uk:4567/poster-vote/node-backend:1.3.1
+docker run -it --rm --link mysql --env-file=.env $IMAGE cli --help
+```
+
+Below is is the `--help` output for reference
+
+```
+Usage: cli [options] [command]
+
+Options:
+  -V, --version      output the version number
+  -h, --help         output usage information
+
+Commands:
+  db:migrate
+  db:destroy
+  db:regenerate
+  jwt:token <email>
+```
+
 ## Future Work
 
 - Run database migrations on container startup
