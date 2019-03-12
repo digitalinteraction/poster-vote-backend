@@ -1,17 +1,16 @@
-import { TestHarness, TestRoute } from '../../core/TestHarness'
-import { hello } from '../general.route'
+import { TestHarness, TestAgent } from '../../core/TestHarness'
 import { expect } from 'chai'
 
 describe('General', () => {
   let harness = TestHarness.withMochaHooks()
 
   describe('general.hello', () => {
-    let route: TestRoute
+    let agent: TestAgent
     before(async () => {
-      route = harness.mockRoute('/', hello)
+      agent = harness.chow.agent
     })
     it('should return a http 200', async () => {
-      let res = await route.get('/')
+      let res = await agent.get('/')
       expect(res.status).to.equal(200)
     })
   })

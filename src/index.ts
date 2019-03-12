@@ -5,7 +5,7 @@
  *  3. Then starts the server on port 3000
  */
 
-import { makeServer, startServer } from './core/server'
+import { makeServer } from './server'
 import { dbFromEnvironment } from './core/db'
 import { setupFskDirectories } from './core/fsk'
 import { setupEnvironment, checkEnvironment } from './env'
@@ -22,7 +22,8 @@ import { setupEnvironment, checkEnvironment } from './env'
     let knex = dbFromEnvironment()
     let app = makeServer(knex)
 
-    await startServer(app, 3000)
+    // await startServer(app, 3000)
+    await app.start()
 
     console.log('Listening on :3000')
   } catch (error) {

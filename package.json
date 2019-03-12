@@ -9,6 +9,7 @@
     "mysql": "docker run -it --rm --name dev_mysql -v mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -p 3306:3306 mysql:5.7",
     "preversion": "npm test -s",
     "prettier": "prettier --write ./**/*.{js,ts,json,css,md}",
+    "lint": "tsc --noEmit",
     "start": "node -r dotenv/config dist",
     "test": "bin/test",
     "dev": "nodemon -w src -e ts -x 'bin/tsnode' -q src/index.ts"
@@ -27,6 +28,10 @@
     ]
   },
   "dependencies": {
+    "@robb_j/chowchow": "^0.5.2",
+    "@robb_j/chowchow-auth": "^0.1.1",
+    "@robb_j/chowchow-json-envelope": "^0.2.0",
+    "@robb_j/chowchow-logger": "^0.2.0",
     "@sendgrid/mail": "^6.3.1",
     "ansi-escapes": "^3.1.0",
     "api-formatter": "^1.0.0",

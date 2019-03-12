@@ -1,21 +1,31 @@
-import { join } from 'path'
+// import { join } from 'path'
 import { setupEnvironment } from '../env'
 import { MigrationManager } from './db'
 import Knex from 'knex'
 import { Table } from '../const'
-import { Route } from '../types'
-import express from 'express'
+import { RouteContext } from '../types'
+// import express from 'express'
 import supertest from 'supertest'
-import { applyMiddleware, applyHandler } from './server'
+import { setupServer } from '../server'
 import { jwtSign, jwtVerify, makeUserJwt } from './jwt'
-import { makeQueries } from './queries'
-import { Api } from 'api-formatter'
+// import { makeQueries } from './queries'
+// import { Api } from 'api-formatter'
+import { ChowChow } from '@robb_j/chowchow'
 
 export { testEmails } from './emails'
 
-export type TestRoute = supertest.SuperTest<supertest.Test>
+export type TestAgent = supertest.SuperTest<supertest.Test>
+
+export class MockChowChow extends ChowChow<RouteContext> {
+  agent = supertest(this.expressApp)
+
+  // Override these and to not actually start express
+  protected async startServer() {}
+  protected async stopServer() {}
+}
 
 export class TestHarness {
+  chow: MockChowChow
   knex: Knex
   mm: MigrationManager
 
@@ -40,47 +50,25 @@ export class TestHarness {
     })
 
     this.mm = new MigrationManager(this.knex)
+
+    this.chow = new MockChowChow()
+    setupServer(this.chow, this.knex)
   }
 
   async setup() {
     await this.mm.sync()
+    await this.chow.start()
   }
 
   async teardown() {
     // Teardown code ...
-    await this.knex.destroy()
+    await this.chow.stop()
   }
 
   async clear() {
     return this.knex.transaction(trx => {
       return Promise.all(Object.values(Table).map(table => trx(table).delete()))
     })
-  }
-
-  mockRoute(path: string, route: Route, jwt: any = undefined) {
-    let app = express()
-    applyMiddleware(app)
-
-    // Setup rendering
-    app.set('views', join(__dirname, '../../views'))
-    app.set('view engine', 'pug')
-
-    let expressRoute: express.Handler = async (req, res, next) => {
-      try {
-        let knex = this.knex
-        let queries = await makeQueries(knex)
-        let api = (req as any).api as Api
-        await route({ req, res, next, knex, jwt, queries, api })
-      } catch (error) {
-        next(error)
-      }
-    }
-
-    app.use(path, expressRoute)
-
-    applyHandler(app)
-
-    return supertest(app)
   }
 
   signJwt(payload: any): string {
@@ -101,11 +89,6 @@ async function insertRows(knex: Knex, table: string, records: any[]) {
   let rows: any[] = await knex(table).select('id')
   return rows.map(o => o.id)
 }
-
-// async function getRowIds(table: string, knex: Knex) {
-//   let rows: any[] = await knex(table).select('id')
-//   return rows.map(o => o.id)
-// }
 
 export async function seedPosters(knex: Knex, userJwt: string) {
   const [poster_id] = await knex(Table.poster).insert({

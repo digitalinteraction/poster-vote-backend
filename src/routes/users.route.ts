@@ -11,12 +11,12 @@ import { jwtSign, jwtVerify, makeUserJwt } from '../core/jwt'
 // Note: its safe to cast because they are required environment variables
 
 // GET: /users
-export async function me({ api, jwt }: RouteContext) {
-  api.sendData({ usr: jwt ? jwt.usr : null })
+export async function me({ sendData, jwt }: RouteContext) {
+  sendData({ usr: jwt ? jwt.sub : null })
 }
 
 // POST: /users
-export async function request({ req, res, api }: RouteContext) {
+export async function request({ req, res, sendData }: RouteContext) {
   type Params = { email: string }
   let { email } = BadParams.check<Params>(req.body, { email: 'string' })
 
@@ -42,7 +42,7 @@ export async function request({ req, res, api }: RouteContext) {
     html: emailHtml
   })
 
-  api.sendData('ok')
+  sendData('ok')
 }
 
 // GET: /check

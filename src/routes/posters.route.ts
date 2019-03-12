@@ -8,39 +8,47 @@ import { NotFound, BadParams, BadAuth } from '../core/errors'
 import PDFDocument = require('pdfkit')
 import { join } from 'path'
 
-function preparePoster(poster: Poster) {
+function preparePoster(poster: Poster & any) {
   let url = `${process.env.API_URL!}/posters/${poster.id}/print.pdf`
-  ;(poster as any).pdf_url = url
+  poster.pdf_url = url
 }
 
 // GET /posters
-export async function index({ api, knex, jwt }: RouteContext) {
-  if (!jwt) return api.sendData([])
+export async function index({ req, sendData, knex, jwt }: RouteContext) {
+  if (!jwt) return sendData([])
 
   let query = {
-    creator_hash: jwt.usr,
+    creator_hash: jwt.sub,
     active: true
   }
 
   let posters = await knex('posters').where(query)
 
-  posters.forEach(preparePoster)
+  for (let poster of posters) {
+    preparePoster(poster)
+  }
 
-  api.sendData(posters)
+  sendData(posters)
 }
 
 // GET /posters/:id
-export async function show({ req, api, queries }: RouteContext) {
+export async function show({ req, sendData, queries }: RouteContext) {
   let poster = await queries.posterWithOptions(parseInt(req.params.id, 10))
   if (!poster) throw new NotFound('poster not found')
 
   preparePoster(poster)
 
-  api.sendData(poster)
+  sendData(poster)
 }
 
 // POST /posters
-export async function create({ req, api, knex, jwt, queries }: RouteContext) {
+export async function create({
+  req,
+  sendData,
+  knex,
+  jwt,
+  queries
+}: RouteContext) {
   if (!jwt) throw new BadAuth()
 
   type Params = { name: string; question: string; options: string[] }
@@ -77,7 +85,7 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
       colour,
       owner,
       contact,
-      creator_hash: jwt!.usr
+      creator_hash: jwt.sub
     })
 
     let optionRecords = options.map((option, value) => ({
@@ -93,17 +101,23 @@ export async function create({ req, api, knex, jwt, queries }: RouteContext) {
 
   if (poster) preparePoster(poster)
 
-  api.sendData(poster)
+  sendData(poster)
 }
 
 // PUT /posters/:id
-export async function update({ req, jwt, knex, queries, api }: RouteContext) {
+export async function update({
+  req,
+  jwt,
+  knex,
+  queries,
+  sendData
+}: RouteContext) {
   if (!jwt) throw new BadAuth()
 
   const posterId = parseInt(req.params.id)
   const poster = await queries.posterWithOptions(posterId)
 
-  if (!poster || poster.creator_hash !== jwt.usr) {
+  if (!poster || poster.creator_hash !== jwt.sub) {
     throw new BadAuth('You cannot edit that poster')
   }
 
@@ -160,18 +174,18 @@ export async function update({ req, jwt, knex, queries, api }: RouteContext) {
   if (updates.length > 0) await Promise.all(updates)
 
   // Send back the updated poster
-  api.sendData({
+  sendData({
     poster: await queries.posterWithOptions(posterId)
   })
 }
 
 // DELETE /posters/:id
-export async function destroy({ req, jwt, knex, api }: RouteContext) {
+export async function destroy({ req, jwt, knex, sendData }: RouteContext) {
   if (!jwt) throw new BadAuth()
 
   let query = {
     id: parseInt(req.params.id),
-    creator_hash: jwt.usr,
+    creator_hash: jwt.sub,
     active: true
   }
 
@@ -179,11 +193,11 @@ export async function destroy({ req, jwt, knex, api }: RouteContext) {
     .where(query)
     .update({ active: false })
 
-  api.sendData('ok')
+  sendData('ok')
 }
 
 // GET /posters/:id/votes
-export async function votes({ req, api, knex, queries }: RouteContext) {
+export async function votes({ req, sendData, knex, queries }: RouteContext) {
   let id = parseInt(req.params.id, 10)
   if (Number.isNaN(id)) throw BadParams.shouldBe('id', 'number')
 
@@ -198,7 +212,7 @@ export async function votes({ req, api, knex, queries }: RouteContext) {
     .groupBy('poster_options.poster_id')
 
   // Fetch & send the votes
-  api.sendData({
+  sendData({
     lastUpdate: updatedResult[0] ? updatedResult[0].max : null,
     votes: await queries.posterVotes(id)
   })
