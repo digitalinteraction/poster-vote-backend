@@ -3,29 +3,29 @@
  *  -> maps routes using a context which has the (typed) params of the server
  */
 
-import { join } from 'path'
-
-import express from 'express'
-import * as routes from '../routes'
-import Knex from 'knex'
-import { Api } from 'api-formatter'
-import bodyParser from 'body-parser'
-import cors from 'cors'
-import cookieParser from 'cookie-parser'
-import jwtParser from 'express-jwt'
-import escapeStringRegexp from 'escape-string-regexp'
-
-import { Route } from '../types'
-import { Redirect, HttpError } from '../core/errors'
-import { jwtParserConfig } from '../core/jwt'
-import { makeQueries } from '../core/queries'
-
-export type ExpressErrorHandler = (
-  err: any,
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) => void
+// import { join } from 'path'
+//
+// import express from 'express'
+// import * as routes from '../routes'
+// import Knex from 'knex'
+// import { Api } from 'api-formatter'
+// import bodyParser from 'body-parser'
+// import cors from 'cors'
+// import cookieParser from 'cookie-parser'
+// import jwtParser from 'express-jwt'
+// import escapeStringRegexp from 'escape-string-regexp'
+//
+// import { Route } from '../types'
+// import { Redirect, HttpError } from '../core/errors'
+// import { jwtParserConfig } from '../core/jwt'
+// import { makeQueries } from '../core/queries'
+//
+// export type ExpressErrorHandler = (
+//   err: any,
+//   req: express.Request,
+//   res: express.Response,
+//   next: express.NextFunction
+// ) => void
 
 // const makeRoute = (route: Route, knex: Knex): express.Handler => {
 //   return async (req, res, next) => {

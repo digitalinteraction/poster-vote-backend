@@ -2,39 +2,39 @@
  *  Utility functions for creating & verifying Json web tokens (jwt)
  */
 
-import * as jwtParser from 'express-jwt'
+// import * as jwtParser from 'express-jwt'
 import * as jwt from 'jsonwebtoken'
 
-import { cookieName } from '../const'
+// import { cookieName } from '../const'
 import { hashEmail } from '../core/emails'
 
 /** Config for express-jwt to optionally verify a token from the request */
-export function jwtParserConfig(): jwtParser.Options {
-  return {
-    secret: process.env.JWT_SECRET!,
-    credentialsRequired: false,
-    getToken(req) {
-      let { headers = {}, signedCookies = {}, query = {} } = req
-
-      // Try a signed cookie
-      if (signedCookies[cookieName]) {
-        return req.signedCookies[cookieName]
-      }
-
-      // Try an auth header, Authorization: Bearer
-      if (
-        headers.authorization &&
-        headers.authorization.startsWith('Bearer ')
-      ) {
-        return headers.authorization.split(' ')[1]
-      }
-
-      // Try the query string, ?token=
-      if (query.token) return query.token
-      return null
-    }
-  }
-}
+// export function jwtParserConfig(): jwtParser.Options {
+//   return {
+//     secret: process.env.JWT_SECRET!,
+//     credentialsRequired: false,
+//     getToken(req) {
+//       let { headers = {}, signedCookies = {}, query = {} } = req
+//
+//       // Try a signed cookie
+//       if (signedCookies[cookieName]) {
+//         return req.signedCookies[cookieName]
+//       }
+//
+//       // Try an auth header, Authorization: Bearer
+//       if (
+//         headers.authorization &&
+//         headers.authorization.startsWith('Bearer ')
+//       ) {
+//         return headers.authorization.split(' ')[1]
+//       }
+//
+//       // Try the query string, ?token=
+//       if (query.token) return query.token
+//       return null
+//     }
+//   }
+// }
 
 // (v) Utilities to wrap the use of JWT_SECRET!
 

@@ -16,7 +16,7 @@ export const hashEmail = (email: string) =>
 /** Whether a string is an email */
 export const isEmail = (value: string) => /^\S+@\S+$/i.test(value)
 
-sendgrid.setApiKey(process.env.SENDGRID_API_KEY!)
+sendgrid.setApiKey(process.env.SENDGRID_TOKEN!)
 
 export async function sendEmail(data: MailData): Promise<any> {
   if (process.env.NODE_ENV === 'testing') {

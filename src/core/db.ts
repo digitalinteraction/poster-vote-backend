@@ -31,7 +31,7 @@ export function dbFromEnvironment(): Knex {
 }
 
 export class MigrationManager {
-  migrationExt = '.' + (process.env.EXECUTOR || 'js')
+  // migrationExt = '.' + (process.env.EXECUTOR || 'js')
 
   constructor(public knex: Knex, public outputMigrations = false) {}
 
@@ -61,19 +61,16 @@ export class MigrationManager {
     return latest ? latest.name : undefined
   }
 
-  async getMigrators(): Promise<Migrator[]> {
+  getMigrators(): Migrator[] {
     let basePath = join(__dirname, '../migrations')
-    let paths = await readdir(basePath)
+    let paths = fs.readdirSync(basePath)
 
-    paths = paths.filter(p => p.endsWith(this.migrationExt))
+    paths = paths.filter(p => /\.[tj]s$/.test(p))
 
-    return Promise.all(
-      paths.map(async file => {
-        let m = await import(join(basePath, file))
-        let name = file.replace(this.migrationExt, '')
-        return Object.assign({ name }, m)
-      })
-    )
+    return paths.map(file => ({
+      name: file.replace(/\..+$/, ''),
+      ...require(join(basePath, file))
+    }))
   }
 
   async sync(): Promise<void> {
@@ -81,7 +78,7 @@ export class MigrationManager {
       await this.setup()
 
       // Get our migrators and the current migration level
-      let migrators = await this.getMigrators()
+      let migrators = this.getMigrators()
       let currentVersion = await this.currentVersion()
 
       // If we have a version, filter out executed migrators

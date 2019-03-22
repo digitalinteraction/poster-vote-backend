@@ -127,7 +127,7 @@ Some variables are set by default when in `development` mode, below is the avail
 | COOKIE_SECRET      | A unique secret used to sign cookies, the longer the better                          |
 | HASH_SECRET        | A unique secret used to hash private info with, the longer the better                |
 | ADMIN_EMAIL        | The email address where login emails will come from                                  |
-| SENDGRID_API_KEY   | Your [SendGrid API key](https://app.sendgrid.com/settings/api_keys)                  |
+| SENDGRID_TOKEN     | Your [SendGrid API key](https://app.sendgrid.com/settings/api_keys)                  |
 | REG_TWILIO_NUMBER  | Your Twilio phone number used to register posters                                    |
 | VOTE_TWILIO_NUMBER | Your Twilio phone number used to submit votes                                        |
 

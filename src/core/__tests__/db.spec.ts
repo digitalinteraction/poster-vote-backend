@@ -47,7 +47,8 @@ describe('MigrationManager', () => {
   })
 
   describe('#sync', () => {
-    it('should run all migrations', async () => {
+    it('should run all migrations', async function() {
+      this.timeout(10000)
       await mm.sync()
       let migrations = await knex(Table.migration)
       expect(migrations.length).to.be.greaterThan(0)

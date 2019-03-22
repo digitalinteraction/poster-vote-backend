@@ -87,9 +87,9 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   chow.applyRoutes((app, r) => {
     // Auth routes
     app.get('/users', r(routes.users.me))
-    app.post('/users', r(routes.users.request))
-    app.delete('/users', r(routes.users.logout))
-    app.get('/check', r(routes.users.check))
+    // app.post('/users', r(routes.users.request))
+    // app.delete('/users', r(routes.users.logout))
+    // app.get('/check', r(routes.users.check))
 
     // Posters routes
     app.get('/posters', r(routes.posters.index))

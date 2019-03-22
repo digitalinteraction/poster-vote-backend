@@ -22,7 +22,7 @@ export const environments = {
     COOKIE_SECRET: 'testing_cookie_secret',
     HASH_SECRET: 'testing_hash_secret',
     ADMIN_EMAIL: 'testing@example.com',
-    SENDGRID_TOKEN: 'testing_sendgrid_api_key',
+    SENDGRID_TOKEN: 'testing_sendgrid_token',
     REG_TWILIO_NUMBER: '07880 123456',
     VOTE_TWILIO_NUMBER: '07880 654321'
   },
@@ -43,7 +43,7 @@ export function checkEnvironment() {
     'JWT_SECRET',
     'COOKIE_SECRET',
     'ADMIN_EMAIL',
-    'SENDGRID_API_KEY',
+    'SENDGRID_TOKEN',
     'HASH_SECRET',
     'REG_TWILIO_NUMBER',
     'VOTE_TWILIO_NUMBER'
