@@ -22,12 +22,6 @@ export class MockChowChow extends ChowChow<RouteContext> {
   // Override these and to not actually start express
   protected async startServer() {}
   protected async stopServer() {}
-
-  // fakeCall(r: ChowChowRoute<RouteContext>): RouteContext {
-  //   let ctx = this.makeCtx({} as any, {} as any, () => {})
-  //   r(ctx)
-  //   return ctx
-  // }
 }
 
 export class TestHarness {

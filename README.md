@@ -131,6 +131,11 @@ Some variables are set by default when in `development` mode, below is the avail
 | REG_TWILIO_NUMBER  | Your Twilio phone number used to register posters                                    |
 | VOTE_TWILIO_NUMBER | Your Twilio phone number used to submit votes                                        |
 
+### Endpoints
+
+> Below is a description of the endpoints this API provides,
+> examples use the [httpie](https://httpie.org/) cli client.
+
 ### Using the cli
 
 You can use the api with `docker run` or `docker exec`, depending if you have a running container already.

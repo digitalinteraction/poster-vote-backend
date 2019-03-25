@@ -13,6 +13,7 @@ import { RouteContext } from './types'
 import { Redirect, HttpError } from './core/errors'
 import * as routes from './routes'
 import { KnexModule } from './modules/KnexModule'
+import { cookieName } from './const'
 
 export const tidyError = (error: Error): Error => {
   if (!error.stack) return error
@@ -41,7 +42,8 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   const authModule = new AuthModule(
     {
       loginRedir: process.env.WEB_URL!,
-      publicUrl: process.env.API_URL!
+      publicUrl: process.env.API_URL!,
+      cookieName
     },
     [
       new SendgridStrategy({
@@ -86,8 +88,8 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   //
   chow.applyRoutes((app, r) => {
     // Auth routes
-    app.get('/users', r(routes.users.me))
-    app.delete('/users', r(routes.users.logout))
+    app.get('/auth/me', r(routes.users.me))
+    app.delete('/auth/logout', r(routes.users.logout))
     // app.post('/users', r(routes.users.request))
     // app.get('/check', r(routes.users.check))
 
