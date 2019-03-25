@@ -33,9 +33,9 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   const jsonEnvelopeModule = new JsonEnvelopeModule()
 
   const loggerModule = new LoggerModule({
-    path: 'logs',
-    enableAccessLogs: true,
-    enableErrorLogs: true
+    path: process.env.LOG_PATH,
+    enableAccessLogs: typeof process.env.LOG_PATH === 'string',
+    enableErrorLogs: typeof process.env.LOG_PATH === 'string'
   })
 
   const authModule = new AuthModule(
@@ -87,8 +87,8 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   chow.applyRoutes((app, r) => {
     // Auth routes
     app.get('/users', r(routes.users.me))
+    app.delete('/users', r(routes.users.logout))
     // app.post('/users', r(routes.users.request))
-    // app.delete('/users', r(routes.users.logout))
     // app.get('/check', r(routes.users.check))
 
     // Posters routes

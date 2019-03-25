@@ -8,7 +8,8 @@ export const environments = {
     EXECUTOR: 'js',
     API_URL: 'http://localhost:3000',
     WEB_URL: 'http://localhost:8080',
-    FSK_CMD: 'docker run -i --rm openlab/fsk'
+    FSK_CMD: 'docker run -i --rm openlab/fsk',
+    LOG_PATH: 'logs'
   },
 
   testing: {
@@ -29,7 +30,8 @@ export const environments = {
 
   production: {
     EXECUTOR: 'js',
-    FSK_CMD: 'fsk'
+    FSK_CMD: 'fsk',
+    LOG_PATH: 'logs'
   }
 } as DefaultEnvMap
 
