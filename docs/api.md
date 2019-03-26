@@ -24,6 +24,12 @@ This is the guide for using the PosterVote api.
   - [posters.destroy](#posters.destroy)
   - [posters.votes](#posters.votes)
   - [posters.print](#posters.print)
+- [IVR Endpoints](#ivr-endpoints)
+  - [ivr.register.start](#ivr.register.start)
+  - [ivr.register.poster](#ivr.register.poster)
+  - [ivr.register.finish](#ivr.register.finish)
+  - [ivr.vote.start](#ivr.vote.start)
+  - [ivr.vote.finish](#ivr.vote.finish)
 
 <!-- toc-tail -->
 
@@ -31,8 +37,9 @@ This is the guide for using the PosterVote api.
 
 All requests expect bodies to be a JSON string.
 
-All responses from the API are either JSON payloads or a http redirect.
-All json bodies are wrapped in a meta/data envelope to ensure a consistent message.
+All responses from the API are either JSON payloads, [TwiML](https://www.twilio.com/docs/voice/twiml) or a http redirect.
+All JSON bodies are wrapped in a meta/data envelope to ensure a consistent message.
+Only the IVR endpoints return TwiML.
 
 Here is an example of the structure,
 the `meta` part contains information about the request
@@ -482,3 +489,51 @@ http $URL/posters/2/votes
 `GET https://api.postervote.openlab.ncl.ac.uk/posters/:id/print.pdf`
 
 Generate a pdf to print a poster.
+
+## IVR Endpoints
+
+These endpoints are for [Twilio](https://www.twilio.com) to request to handle inbound phone calls.
+They return TwiML, which is an XML based markup to describe what to say/do over the phone.
+
+> See the [TwiML docs](https://www.twilio.com/docs/voice/twiml)
+
+There are 2 twilio branches, one for registering a new device with a poster
+and another for recording votes on a registered device.
+
+**Registration**
+
+> This process is only done once by the creator of the poster
+
+Registering a device links a physical PosterVote device with a poster.
+It asks the caller to enter the poster's code down the phone,
+then play the device's tone down their receiver.
+
+This does two things, it links the physical device with the poster record
+and records the device's votes that are used as a baseline for vote counts.
+
+**Recording votes**
+
+> This process can be done by anyone to record the votes of a poster
+
+This process if for people to record the votes on a device and store them in the database.
+It also sends the caller an SMS with the current vote summary.
+
+### ivr.register.start
+
+`GET https://api.postervote.openlab.ncl.ac.uk/ivr/register/start`
+
+### ivr.register.poster
+
+`GET https://api.postervote.openlab.ncl.ac.uk/ivr/register/poster?Digits=123456`
+
+### ivr.register.finish
+
+`GET https://api.postervote.openlab.ncl.ac.uk/ivr/register/finish/:poster_id?RecordingUrl=<...>`
+
+### ivr.vote.start
+
+`GET https://api.postervote.openlab.ncl.ac.uk/ivr/vote/start`
+
+### ivr.vote.finish
+
+`GET https://api.postervote.openlab.ncl.ac.uk/ivr/vote/finish?RecordingUrl=<...>`

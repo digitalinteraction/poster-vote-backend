@@ -210,7 +210,7 @@ export function voteStart({ res }: RouteContext) {
   sendTwiml(res, voice)
 }
 
-// GET /ivr/vote/finish
+// GET /ivr/vote/finish?RecordingUrl
 export async function voteFinish({ req, res, knex, queries }: RouteContext) {
   const recordingUrl = req.query.RecordingUrl as string
   const voice = new twiml.VoiceResponse()
