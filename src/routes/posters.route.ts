@@ -174,9 +174,7 @@ export async function update({
   if (updates.length > 0) await Promise.all(updates)
 
   // Send back the updated poster
-  sendData({
-    poster: await queries.posterWithOptions(posterId)
-  })
+  sendData(await queries.posterWithOptions(posterId))
 }
 
 // DELETE /posters/:id
