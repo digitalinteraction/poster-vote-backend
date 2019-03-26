@@ -7,29 +7,30 @@ This is the guide for using the PosterVote api.
 
 <!-- toc-head -->
 
-## Table of Contents
+## Table of contents
 
+- [Table of Contents](#table-of-contents)
 - [Api envelope](#api-envelope)
 - [Authorization](#authorization)
 - [Authentication](#authentication)
-  - [auth.email.request](#auth.email.request)
-  - [auth.email.check](#auth.email.check)
-  - [auth.me](#auth.me)
-  - [auth.logout](#auth.logout)
+  - [auth.email.request](#authemailrequest)
+  - [auth.email.check](#authemailcheck)
+  - [auth.me](#authme)
+  - [auth.logout](#authlogout)
 - [Poster Management](#poster-management)
-  - [posters.index](#posters.index)
-  - [posters.show](#posters.show)
-  - [posters.create](#posters.create)
-  - [posters.update](#posters.update)
-  - [posters.destroy](#posters.destroy)
-  - [posters.votes](#posters.votes)
-  - [posters.print](#posters.print)
+  - [posters.index](#postersindex)
+  - [posters.show](#postersshow)
+  - [posters.create](#posterscreate)
+  - [posters.update](#postersupdate)
+  - [posters.destroy](#postersdestroy)
+  - [posters.votes](#postersvotes)
+  - [posters.print](#postersprint)
 - [IVR Endpoints](#ivr-endpoints)
-  - [ivr.register.start](#ivr.register.start)
-  - [ivr.register.poster](#ivr.register.poster)
-  - [ivr.register.finish](#ivr.register.finish)
-  - [ivr.vote.start](#ivr.vote.start)
-  - [ivr.vote.finish](#ivr.vote.finish)
+  - [ivr.register.start](#ivrregisterstart)
+  - [ivr.register.poster](#ivrregisterposter)
+  - [ivr.register.finish](#ivrregisterfinish)
+  - [ivr.vote.start](#ivrvotestart)
+  - [ivr.vote.finish](#ivrvotefinish)
 
 <!-- toc-tail -->
 

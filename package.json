@@ -13,7 +13,7 @@
     "start": "node -r dotenv/config dist",
     "test": "bin/test",
     "dev": "nodemon -w src -e ts -x 'bin/tsnode' -q src/index.ts",
-    "gen-toc": "md-toc -i && md-toc -f docs/api.md -i"
+    "gen-toc": "npx md-toc -f '**/*.md' -i"
   },
   "author": "robb-j",
   "license": "ISC",

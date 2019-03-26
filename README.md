@@ -9,7 +9,7 @@ It also has a CLI to perform migrations and perform other useful tasks.
 
 <!-- toc-head -->
 
-## Table of Contents
+## Table of contents
 
 - [Development](#development)
   - [Setup](#setup)
