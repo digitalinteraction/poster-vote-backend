@@ -172,7 +172,7 @@ Commands:
 - Run database migrations on container startup
 - Give the poster pdf a name
 - Hashids the posters endpoint to stop increment attack
-- Migrate to use [ChowChow](https://github.com/robb-j/chowchow), which was extracted from this
+- Add code coverage for IVR routes
 
 ---
 
