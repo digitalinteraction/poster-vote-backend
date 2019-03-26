@@ -31,8 +31,6 @@ export function dbFromEnvironment(): Knex {
 }
 
 export class MigrationManager {
-  // migrationExt = '.' + (process.env.EXECUTOR || 'js')
-
   constructor(public knex: Knex, public outputMigrations = false) {}
 
   /** Setup the migration manager if it isn't already, adding migrations table */

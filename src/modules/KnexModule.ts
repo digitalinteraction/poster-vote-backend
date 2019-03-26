@@ -25,19 +25,6 @@ export class KnexModule implements Module {
   checkEnvironment() {}
 
   setupModule() {
-    // if (process.env.NODE_ENV === 'testing') {
-    //   this.knex = Knex({
-    //     client: 'sqlite3',
-    //     connection: { filename: ':memory:' },
-    //     useNullAsDefault: true
-    //   })
-    // } else {
-    //   this.knex = Knex({
-    //     client: process.env.DB_TYPE,
-    //     connection: process.env.DB_URI
-    //   })
-    // }
-
     this.queries = makeQueries(this.knex)
   }
 

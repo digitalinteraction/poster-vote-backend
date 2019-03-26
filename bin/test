@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
 
 export NODE_ENV=testing
-export EXECUTOR=ts
 npx mocha -r ts-node/register 'src/**/*.spec.ts'

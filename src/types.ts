@@ -2,11 +2,6 @@
  *  This file contains definitions that are re-used throughout the project
  */
 
-// import { Request, Response, NextFunction } from 'express'
-// import { Api } from 'api-formatter'
-// import { Queries } from './core/queries'
-// import * as Knex from 'knex'
-
 import { BaseContext } from '@robb_j/chowchow'
 import { LoggerContext } from '@robb_j/chowchow-logger'
 import { AuthContext } from '@robb_j/chowchow-auth'
@@ -18,16 +13,6 @@ export type RouteContext = BaseContext &
   AuthContext &
   JsonEnvelopeContext &
   KnexContext
-
-// export type RouteContext = {
-//   req: Request
-//   res: Response
-//   next: NextFunction
-//   knex: Knex
-//   api: Api
-//   jwt?: UserJwt
-//   queries: Queries
-// }
 
 export type Route = (ctx: RouteContext) => Promise<any> | any
 

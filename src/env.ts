@@ -5,7 +5,6 @@ type DefaultEnvMap = { [env: string]: { [key: string]: string } }
 // Default environment variables for different NODE_ENVs
 export const environments = {
   development: {
-    EXECUTOR: 'js',
     API_URL: 'http://localhost:3000',
     WEB_URL: 'http://localhost:8080',
     FSK_CMD: 'docker run -i --rm openlab/fsk',
@@ -13,7 +12,6 @@ export const environments = {
   },
 
   testing: {
-    EXECUTOR: 'js',
     API_URL: 'http://localhost:3000',
     WEB_URL: 'http://localhost:8080',
     DB_TYPE: 'sqlite3',
@@ -29,7 +27,6 @@ export const environments = {
   },
 
   production: {
-    EXECUTOR: 'js',
     FSK_CMD: 'fsk',
     LOG_PATH: 'logs'
   }

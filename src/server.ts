@@ -1,6 +1,6 @@
 import { join } from 'path'
 
-import { ChowChow, BaseContext } from '@robb_j/chowchow'
+import { ChowChow } from '@robb_j/chowchow'
 import { JsonEnvelopeModule } from '@robb_j/chowchow-json-envelope'
 import { LoggerModule } from '@robb_j/chowchow-logger'
 import { AuthModule, SendgridStrategy } from '@robb_j/chowchow-auth'
@@ -24,21 +24,37 @@ export const tidyError = (error: Error): Error => {
 
 export const makeUsername = (email: string) => email.split('@')[0]
 
+/**
+ * Create a server with a specified database connection
+ */
 export function makeServer(knex: Knex) {
   let chow = ChowChow.create<RouteContext>()
   setupServer(chow, knex)
   return chow
 }
 
+/**
+ * Decorate an existing server by registering modules, middleware and routes
+ * This is a decorator so it can be used in unit tests to pass a custom ChowChow subclass
+ */
 export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
+  //
+  // A json envelope module for structuring responses
+  //
   const jsonEnvelopeModule = new JsonEnvelopeModule()
 
+  //
+  // The logger module
+  //
   const loggerModule = new LoggerModule({
     path: process.env.LOG_PATH,
     enableAccessLogs: typeof process.env.LOG_PATH === 'string',
     enableErrorLogs: typeof process.env.LOG_PATH === 'string'
   })
 
+  //
+  // The authentication module for handling email-based authorisation
+  //
   const authModule = new AuthModule(
     {
       loginRedir: process.env.WEB_URL!,
@@ -55,8 +71,14 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
     ]
   )
 
+  //
+  // The database module to provide a db connection and queries
+  //
   const knexModule = new KnexModule(knex)
 
+  //
+  // Setup ChowChow to use our modules
+  //
   chow
     .use(jsonEnvelopeModule)
     .use(loggerModule)
@@ -67,14 +89,18 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   // Add express middleware
   //
   chow.applyMiddleware(app => {
+    // Trust reverse proxies
     app.set('trust proxy', 1)
 
+    // Setup pug as a rendering engine
     app.set('views', join(__dirname, '../../views'))
     app.set('view engine', 'pug')
     app.locals = {}
 
+    // Parse json bodies
     app.use(express.json())
 
+    // Add cors headers
     app.use(
       cors({
         origin: process.env.WEB_URL,
@@ -116,19 +142,32 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   // Handle routing errors
   //
   chow.applyErrorHandler((err, { res, sendFail }) => {
+    //
+    // If an interable was thrown (i.e. an Array or Set), send along those errors
+    //
     if (err[Symbol.iterator] || typeof err === 'string') {
       return sendFail(Array.from(err))
     }
 
+    //
+    // If an http error was thrown, set the response's status code
+    //
     if (err instanceof HttpError) {
       res.status(err.status)
     }
 
+    //
+    // If a http redirect error was thrown, perform the redirection
+    //
     if (err instanceof Redirect) {
       return res.redirect(err.status, err.url)
     }
 
-    if (err instanceof Error) {
+    //
+    // For any other error, log it
+    // If also in development mode, send back the error
+    //
+    if (err instanceof Error && !(err instanceof HttpError)) {
       console.error('Caught error', tidyError(err) + '\n')
       if (process.env.NODE_ENV === 'development') {
         console.log(err.stack)
@@ -136,6 +175,9 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
       }
     }
 
+    //
+    // Generically handle errors if nothing else caught the error
+    //
     sendFail(['Something went wrong'])
   })
 }
