@@ -20,6 +20,8 @@ It also has a CLI to perform migrations and perform other useful tasks.
 - [Deployment](#deployment)
   - [Building the image](#building-the-image)
   - [Using the image](#using-the-image)
+  - [Endpoints](#endpoints)
+  - [Using the cli](#using-the-cli)
 - [Future Work](#future-work)
 
 <!-- toc-tail -->
@@ -60,8 +62,8 @@ npm run dev
 #  -> It looks for files that end with '.spec.ts', e.g. MyApp.spec.ts
 npm test -s
 
-# Generate the table of contents for this readme
-npx gen-md-toc -i
+# Generate the table of contents for this readme and docs/api.md
+npm run gen-toc
 ```
 
 ### Code Structure
@@ -133,8 +135,7 @@ Some variables are set by default when in `development` mode, below is the avail
 
 ### Endpoints
 
-> Below is a description of the endpoints this API provides,
-> examples use the [httpie](https://httpie.org/) cli client.
+See [docs/api](/docs/api.md)
 
 ### Using the cli
 

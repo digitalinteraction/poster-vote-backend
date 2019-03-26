@@ -6,6 +6,25 @@ This is the guide for using the PosterVote api.
 > Where `$TOKEN` is your authentication token and `$URL` is the api url.
 
 <!-- toc-head -->
+
+## Table of Contents
+
+- [Api envelope](#api-envelope)
+- [Authorization](#authorization)
+- [Authentication](#authentication)
+  - [auth.email.request](#auth.email.request)
+  - [auth.email.check](#auth.email.check)
+  - [auth.me](#auth.me)
+  - [auth.logout](#auth.logout)
+- [Poster Management](#poster-management)
+  - [posters.index](#posters.index)
+  - [posters.show](#posters.show)
+  - [posters.create](#posters.create)
+  - [posters.update](#posters.update)
+  - [posters.destroy](#posters.destroy)
+  - [posters.votes](#posters.votes)
+  - [posters.print](#posters.print)
+
 <!-- toc-tail -->
 
 ## Api envelope
@@ -48,7 +67,7 @@ The value of each method should be a token acquired when you authenticate yourse
 
 The API use email-based authentication to confirm you are a human.
 
-#### auth.email.request
+### auth.email.request
 
 > `GET https://api.postervote.openlab.ncl.ac.uk/auth/email/request`
 
@@ -76,7 +95,7 @@ This is only really useful for development.
 
 > For more information see [robb-j/chowchow-auth](https://github.com/robb-j/chowchow-auth/#authentication-modes)
 
-#### auth.email.check
+### auth.email.check
 
 > `GET https://api.postervote.openlab.ncl.ac.uk/auth/email/check`
 
@@ -84,13 +103,13 @@ This is the handler endpoint for `auth.email.request`,
 which is where users are send from their email link
 and then forwarded on depending on their `mode`.
 
-#### auth.me
+### auth.me
 
 > `GET https://api.postervote.openlab.ncl.ac.uk/auth/me`
 
 This endpoint gets the currently authenticated user or returns null.
 
-#### auth.logout
+### auth.logout
 
 > `POST https://api.postervote.openlab.ncl.ac.uk/auth/logout`
 
@@ -102,7 +121,7 @@ Logs out the current user by expiring their cookie.
 
 These endpoints are for creating, retrieving, updating and deleting posters.
 
-#### posters.index
+### posters.index
 
 `GET https://api.postervote.openlab.ncl.ac.uk/posters`
 
@@ -148,7 +167,7 @@ http $URL/posters
 
 </details>
 
-#### posters.show
+### posters.show
 
 `GET https://api.postervote.openlab.ncl.ac.uk/posters/:id`
 
@@ -234,7 +253,7 @@ http $URL/posters/1
 
 </details>
 
-#### posters.create
+### posters.create
 
 `POST https://api.postervote.openlab.ncl.ac.uk/posters`
 
@@ -315,7 +334,7 @@ http post $URL/posters token==$TOKEN \
 
 </details>
 
-#### posters.update
+### posters.update
 
 `PUT https://api.postervote.openlab.ncl.ac.uk/posters/:id`
 
@@ -397,14 +416,14 @@ http put $URL/posters/5 token==$TOKEN name="Pie poll"
 
 </details>
 
-#### posters.destroy
+### posters.destroy
 
 `DELETE https://api.postervote.openlab.ncl.ac.uk/posters/:id`
 
 Soft deletes a poster, keeping the record but setting `active` to false.
 All other queries respect this and filter on `active=true`.
 
-#### posters.votes
+### posters.votes
 
 `GET https://api.postervote.openlab.ncl.ac.uk/posters/:id/votes`
 
@@ -458,7 +477,7 @@ http $URL/posters/2/votes
 
 </details>
 
-#### posters.print
+### posters.print
 
 `GET https://api.postervote.openlab.ncl.ac.uk/posters/:id/print.pdf`
 
