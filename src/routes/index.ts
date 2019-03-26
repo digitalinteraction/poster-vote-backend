@@ -6,6 +6,6 @@
 import * as general from './general.route'
 import * as ivr from './ivr.route'
 import * as posters from './posters.route'
-import * as users from './users.route'
+import * as auth from './auth.route'
 
-export { general, ivr, posters, users }
+export { general, ivr, posters, auth }

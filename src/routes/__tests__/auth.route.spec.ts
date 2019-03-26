@@ -10,23 +10,23 @@ describe('Users', () => {
 
   describe('users.me', () => {
     it('should return a http/200', async () => {
-      let res = await agent.get('/users').query(authn)
+      let res = await agent.get('/auth/me').query(authn)
       expect(res.status).to.equal(200)
     })
     it('should return the user', async () => {
-      let res = await agent.get('/users').query(authn)
+      let res = await agent.get('/auth/me').query(authn)
       expect(res.body.data.usr).to.equal('posters_user_1')
     })
   })
 
   describe('users.logout', () => {
     it('should return a http/302', async () => {
-      let res = await agent.delete('/users').query(authn)
+      let res = await agent.post('/auth/logout').query(authn)
       expect(res.status).to.equal(302)
     })
 
     it('should set a cookie', async () => {
-      let res = await agent.delete('/users').query(authn)
+      let res = await agent.post('/auth/logout').query(authn)
       let cookie = res.header['set-cookie']
       expect(cookie).to.be.length(1)
       expect(cookie[0]).to.include('postervote_jwt=')
