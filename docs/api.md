@@ -69,7 +69,7 @@ The API use email-based authentication to confirm you are a human.
 
 ### auth.email.request
 
-> `GET https://api.postervote.openlab.ncl.ac.uk/auth/email/request`
+`GET https://api.postervote.openlab.ncl.ac.uk/auth/email/request`
 
 | Param | Description                                 |
 | ----- | ------------------------------------------- |
@@ -97,7 +97,7 @@ This is only really useful for development.
 
 ### auth.email.check
 
-> `GET https://api.postervote.openlab.ncl.ac.uk/auth/email/check`
+`GET https://api.postervote.openlab.ncl.ac.uk/auth/email/check`
 
 This is the handler endpoint for `auth.email.request`,
 which is where users are send from their email link
@@ -105,13 +105,13 @@ and then forwarded on depending on their `mode`.
 
 ### auth.me
 
-> `GET https://api.postervote.openlab.ncl.ac.uk/auth/me`
+`GET https://api.postervote.openlab.ncl.ac.uk/auth/me`
 
 This endpoint gets the currently authenticated user or returns null.
 
 ### auth.logout
 
-> `POST https://api.postervote.openlab.ncl.ac.uk/auth/logout`
+`POST https://api.postervote.openlab.ncl.ac.uk/auth/logout`
 
 Logs out the current user by expiring their cookie.
 
