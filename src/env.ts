@@ -8,7 +8,8 @@ export const environments = {
     API_URL: 'http://localhost:3000',
     WEB_URL: 'http://localhost:8080',
     FSK_CMD: 'docker run -i --rm openlab/fsk',
-    LOG_PATH: 'logs'
+    LOG_PATH: 'logs',
+    LOG_LEVEL: 'silly'
   },
 
   testing: {

@@ -102,11 +102,6 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
     // Trust reverse proxies
     app.set('trust proxy', 1)
 
-    // Setup pug as a rendering engine
-    app.set('views', join(__dirname, '../../views'))
-    app.set('view engine', 'pug')
-    app.locals = {}
-
     // Parse json bodies
     app.use(express.json())
 
@@ -154,7 +149,7 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   //
   // Handle routing errors
   //
-  chow.applyErrorHandler((err, { res, sendFail }) => {
+  chow.applyErrorHandler((err, { res, sendFail, logger }) => {
     //
     // If an interable was thrown (i.e. an Array or Set), send along those errors
     //
@@ -181,11 +176,7 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
     // If also in development mode, send back the error
     //
     if (err instanceof Error && !(err instanceof HttpError)) {
-      console.error('Caught error', tidyError(err) + '\n')
-      if (process.env.NODE_ENV === 'development') {
-        console.log(err.stack)
-        return sendFail([err.message])
-      }
+      logger.error(err.message, { stack: err.stack })
     }
 
     //

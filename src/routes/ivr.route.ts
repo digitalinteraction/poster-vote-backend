@@ -74,49 +74,59 @@ export function registerStart({ res }: RouteContext) {
 }
 
 // GET /ivr/register/poster
-export async function registerWithDigits({ req, res, knex }: RouteContext) {
+export async function registerWithDigits({
+  req,
+  res,
+  knex,
+  logger
+}: RouteContext) {
   // Start a twiml response
   const voice = new twiml.VoiceResponse()
   const posterId = req.query.Digits && parseInt(req.query.Digits, 10)
 
-  // Fail if there isn't a ?Digits url parameter
-  if (posterId === undefined) {
-    voice.say('No poster entered, please try again.')
-    voice.redirect({ method: 'GET' }, ivrUrl('register/start'))
-    return sendTwiml(res, voice)
+  try {
+    // Fail if there isn't a ?Digits url parameter
+    if (posterId === undefined) {
+      voice.say('No poster entered, please try again.')
+      voice.redirect({ method: 'GET' }, ivrUrl('register/start'))
+      return sendTwiml(res, voice)
+    }
+
+    // Tell them what they entered
+    voice.say(`You entered ${speakableNumber(posterId)}.`)
+
+    // Find the associated poster
+    let poster: Poster = await knex(Table.poster)
+      .where({ code: posterId })
+      .first()
+
+    // Fail if we can't find a poster
+    if (!poster) {
+      voice.say(`We couldn't find that poster, please try again.`)
+      voice.redirect({ method: 'GET' }, ivrUrl('register/start'))
+      return sendTwiml(res, voice)
+    }
+
+    // Give them instructions
+    voice.say(submitMsg)
+
+    // Ask them to record a sound
+    voice.record({
+      action: ivrUrl(`register/finish/${poster.id}`),
+      method: 'GET',
+      playBeep: true,
+      maxLength: 23,
+      timeout: 23,
+      trim: 'do-not-trim',
+      finishOnKey: '#'
+    })
+
+    // Fail if they didn't record anything
+    voice.say(`Sorry I didn't catch that, please try again`)
+  } catch (error) {
+    logger.error(error.message, { stack: error.stack })
+    voice.say(`Sorry, we couldn't process that, please try again.`)
   }
-
-  // Tell them what they entered
-  voice.say(`You entered ${speakableNumber(posterId)}.`)
-
-  // Find the associated poster
-  let poster: Poster = await knex(Table.poster)
-    .where({ code: posterId })
-    .first()
-
-  // Fail if we can't find a poster
-  if (!poster) {
-    voice.say(`We couldn't find that poster, please try again.`)
-    voice.redirect({ method: 'GET' }, ivrUrl('register/start'))
-    return sendTwiml(res, voice)
-  }
-
-  // Give them instructions
-  voice.say(submitMsg)
-
-  // Ask them to record a sound
-  voice.record({
-    action: ivrUrl(`register/finish/${poster.id}`),
-    method: 'GET',
-    playBeep: true,
-    maxLength: 23,
-    timeout: 23,
-    trim: 'do-not-trim',
-    finishOnKey: '#'
-  })
-
-  // Fail if they didn't record anything
-  voice.say(`Sorry I didn't catch that, please try again`)
 
   // Return the twiml
   return sendTwiml(res, voice)
@@ -127,7 +137,8 @@ export async function registerFinish({
   req,
   res,
   knex,
-  queries
+  queries,
+  logger
 }: RouteContext) {
   const posterId = parseInt(req.params.poster_id, 10)
   const recordingUrl = req.query.RecordingUrl as string
@@ -180,7 +191,7 @@ export async function registerFinish({
     // Let them know it was a success
     voice.say('Thank you, your device has been registered with that poster.')
   } catch (error) {
-    console.log(error)
+    logger.error(error.message, { stack: error.stack })
     voice.say(`Sorry, we couldn't process that, please try again.`)
   }
 
@@ -211,7 +222,13 @@ export function voteStart({ res }: RouteContext) {
 }
 
 // GET /ivr/vote/finish?RecordingUrl
-export async function voteFinish({ req, res, knex, queries }: RouteContext) {
+export async function voteFinish({
+  req,
+  res,
+  knex,
+  queries,
+  logger
+}: RouteContext) {
   const recordingUrl = req.query.RecordingUrl as string
   const voice = new twiml.VoiceResponse()
 
@@ -261,7 +278,7 @@ export async function voteFinish({ req, res, knex, queries }: RouteContext) {
     voice.say(`Thank you for recording votes, we will send you them as an SMS.`)
     voice.sms(smsLines.join('\n\r'))
   } catch (error) {
-    console.log(error)
+    logger.error(error.message, { stack: error.stack })
     voice.say(`Sorry, we couldn't process that, starting again.`)
     voice.redirect({ method: 'GET' }, ivrUrl('vote/start'))
   }
