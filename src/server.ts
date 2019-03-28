@@ -9,6 +9,7 @@ import cors from 'cors'
 import escapeStringRegexp from 'escape-string-regexp'
 import Knex from 'knex'
 import pug from 'pug'
+import serveFavicon from 'serve-favicon'
 
 import { RouteContext } from './types'
 import { Redirect, HttpError } from './core/errors'
@@ -116,6 +117,9 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
         credentials: true
       })
     )
+
+    // Add a favicon
+    app.use(serveFavicon(join(__dirname, '../static/favicon.png')))
   })
 
   //
