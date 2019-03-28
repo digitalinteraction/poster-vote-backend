@@ -25,7 +25,7 @@ export const tidyError = (error: Error): Error => {
 }
 
 export const loginTemplate = pug.compileFile(
-  join(__dirname, '../view/loginEmail.pug')
+  join(__dirname, '../views/loginEmail.pug')
 )
 
 export function formatLoginEmail(email: string, link: string) {
