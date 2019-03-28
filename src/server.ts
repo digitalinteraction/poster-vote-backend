@@ -8,6 +8,7 @@ import express from 'express'
 import cors from 'cors'
 import escapeStringRegexp from 'escape-string-regexp'
 import Knex from 'knex'
+import pug from 'pug'
 
 import { RouteContext } from './types'
 import { Redirect, HttpError } from './core/errors'
@@ -22,7 +23,16 @@ export const tidyError = (error: Error): Error => {
   return error
 }
 
-export const makeUsername = (email: string) => email.split('@')[0]
+export const loginTemplate = pug.compileFile(
+  join(__dirname, '../view/loginEmail.pug')
+)
+
+export function formatLoginEmail(email: string, link: string) {
+  return loginTemplate({
+    username: email.split('@')[0],
+    loginUrl: link
+  })
+}
 
 /**
  * Create a server with a specified database connection
@@ -65,8 +75,7 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
       new SendgridStrategy({
         fromEmail: process.env.ADMIN_EMAIL!,
         emailSubject: 'PosterVote login',
-        emailBody: (email, link) =>
-          `Hey ${makeUsername(email)},\nHere is your login link: ${link}\n\n`
+        emailBody: formatLoginEmail
       })
     ]
   )
