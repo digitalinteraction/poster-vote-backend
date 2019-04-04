@@ -1,8 +1,13 @@
+/*
+ * Utilities for setting up default environment variables for different environments
+ * -> i.e. production, development or testing
+ */
+
 import validateEnv from 'valid-env'
 
 type DefaultEnvMap = { [env: string]: { [key: string]: string } }
 
-// Default environment variables for different NODE_ENVs
+/** Default environment variables for different NODE_ENVs */
 export const environments = {
   development: {
     API_URL: 'http://localhost:3000',
@@ -17,7 +22,6 @@ export const environments = {
     WEB_URL: 'http://localhost:8080',
     DB_TYPE: 'sqlite3',
     DB_URI: ':memory:',
-    // FSK_CMD: 'echo "mock_fsk"',
     JWT_SECRET: 'testing_jwt_secret',
     COOKIE_SECRET: 'testing_cookie_secret',
     HASH_SECRET: 'testing_hash_secret',
@@ -33,7 +37,7 @@ export const environments = {
   }
 } as DefaultEnvMap
 
-// Checks that the required environment variables are set
+/** Checks that the required environment variables are set */
 export function checkEnvironment() {
   validateEnv([
     'API_URL',
@@ -50,8 +54,10 @@ export function checkEnvironment() {
   ])
 }
 
-// Setup the environment using pre-configurated defaults
-// Only setting defaults if they're not already set
+/**
+ * Setup the environment using pre-configurated defaults
+ * Only setting defaults if they're not already set
+ */
 export function setupEnvironment(env: string) {
   process.env.NODE_ENV = env
 

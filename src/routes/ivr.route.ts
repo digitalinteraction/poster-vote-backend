@@ -20,12 +20,14 @@ const submitMsg = `After the beep, hold the bottom two poster buttons then place
 
 const ivrUrl = (path: string) => `/ivr/${path}`
 
+/** Make a phone number speakable to twilio by putting spaces between each digit */
 const speakableNumber = (number: number) =>
   number
     .toString()
     .split('')
     .join(' ')
 
+/** Send twiml to an express response */
 function sendTwiml(res: express.Response, voice: VoiceResponse): void {
   res.header('content-type', 'text/xml')
   res.header('Cache-Control', 'no-store, must-revalidate, max-age=0')

@@ -1,3 +1,9 @@
+/*
+ * A factory to create the ChowChow server to serve endpoints
+ * It exposes a simple method to create the server
+ * along with a decorator to apply to an existing server (for testing)
+ */
+
 import { join } from 'path'
 
 import { ChowChow } from '@robb_j/chowchow'

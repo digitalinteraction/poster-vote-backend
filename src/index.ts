@@ -1,8 +1,8 @@
 /*
- *  This is the entrypoint to the application
- *  1. It validates and sets up the environment
- *  2. It connects to the database
- *  3. Then starts the server on port 3000
+ *  This is the entrypoint to the application, it:
+ *  1. Validates and sets up the environment
+ *  2. Connects to the database
+ *  3. Starts the server on port 3000
  */
 
 import { makeServer } from './server'

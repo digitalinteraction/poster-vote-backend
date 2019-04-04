@@ -1,3 +1,7 @@
+/*
+ * A ChowChow module to add a Knex instance and query logic to the context
+ */
+
 import { ChowChow, Module, BaseContext } from '@robb_j/chowchow'
 import { Application } from 'express'
 import Knex from 'knex'

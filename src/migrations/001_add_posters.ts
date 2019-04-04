@@ -1,5 +1,9 @@
 import Knex from 'knex'
 
+//
+// A database migration to add the posters table
+//
+
 export async function up(knex: Knex) {
   await knex.schema.createTable('posters', table => {
     table.increments()

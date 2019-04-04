@@ -8,9 +8,9 @@ import { NotFound, BadParams, BadAuth } from '../core/errors'
 import PDFDocument = require('pdfkit')
 import { join } from 'path'
 
-function preparePoster(poster: Poster & any) {
-  let url = `${process.env.API_URL!}/posters/${poster.id}/print.pdf`
-  poster.pdf_url = url
+/** Decorate a poster for the API by putting the pdf_url on it */
+function decoratePoster(poster: Poster & any) {
+  poster.pdf_url = `${process.env.API_URL!}/posters/${poster.id}/print.pdf`
 }
 
 // GET /posters
@@ -25,7 +25,7 @@ export async function index({ req, sendData, knex, jwt }: RouteContext) {
   let posters = await knex('posters').where(query)
 
   for (let poster of posters) {
-    preparePoster(poster)
+    decoratePoster(poster)
   }
 
   sendData(posters)
@@ -36,7 +36,7 @@ export async function show({ req, sendData, queries }: RouteContext) {
   let poster = await queries.posterWithOptions(parseInt(req.params.id, 10))
   if (!poster) throw new NotFound('poster not found')
 
-  preparePoster(poster)
+  decoratePoster(poster)
 
   sendData(poster)
 }
@@ -99,7 +99,7 @@ export async function create({
     return await queries.with(trx).posterWithOptions(id)
   })
 
-  if (poster) preparePoster(poster)
+  if (poster) decoratePoster(poster)
 
   sendData(poster)
 }

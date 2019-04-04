@@ -1,5 +1,9 @@
 import Knex from 'knex'
 
+//
+// A database migration to add devices and device_poster tables
+//
+
 export async function up(knex: Knex) {
   await knex.schema.createTable('devices', table => {
     table.increments()

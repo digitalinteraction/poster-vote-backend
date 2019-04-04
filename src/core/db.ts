@@ -9,9 +9,6 @@ import { Record } from '../types'
 import { Table, check, cross } from '../const'
 import validateEnv = require('valid-env')
 
-// import { promisify } from 'util'
-// const readdir = promisify(fs.readdir)
-
 type Migration = Record & {
   name: string
 }

@@ -1,18 +1,16 @@
-// import { join } from 'path'
+/*
+ * A utility class for unit tests to perform common logic
+ */
+
 import { setupEnvironment } from '../env'
 import { MigrationManager } from './db'
 import Knex from 'knex'
 import { Table } from '../const'
 import { RouteContext } from '../types'
-// import express from 'express'
 import supertest from 'supertest'
 import { setupServer } from '../server'
 import { jwtSign, jwtVerify, makeUserJwt } from './jwt'
-// import { makeQueries } from './queries'
-// import { Api } from 'api-formatter'
 import { ChowChow } from '@robb_j/chowchow'
-
-export { testEmails } from './emails'
 
 export type TestAgent = supertest.SuperTest<supertest.Test>
 
@@ -29,6 +27,7 @@ export class TestHarness {
   knex: Knex
   mm: MigrationManager
 
+  /** Create a harness and hook in the #setup & #teardown with mocha */
   static withMochaHooks(): TestHarness {
     let harness = new TestHarness()
     before(() => harness.setup())
@@ -41,55 +40,66 @@ export class TestHarness {
       throw new Error('Not in testing environment')
     }
 
+    // Setup the environment for testing
     setupEnvironment('testing')
 
+    // Connect to an in-memory sqline database
     this.knex = Knex({
       client: 'sqlite3',
       connection: { filename: ':memory:' },
       useNullAsDefault: true
     })
 
+    // Create a migration manager
     this.mm = new MigrationManager(this.knex)
 
+    // Create and setup the ChowChow instance
     this.chow = new MockChowChow()
     setupServer(this.chow, this.knex)
   }
 
+  /** Setup (to be called before each test) */
   async setup() {
     await this.mm.sync()
     await this.chow.start()
   }
 
+  /** Setup (to be called before each test) */
   async teardown() {
-    // Teardown code ...
     await this.chow.stop()
   }
 
+  /** Clear all tables */
   async clear() {
     return this.knex.transaction(trx => {
       return Promise.all(Object.values(Table).map(table => trx(table).delete()))
     })
   }
 
+  /** Sign a jwt payload */
   signJwt(payload: any): string {
     return jwtSign(payload)
   }
 
+  /** Verify a jwt payload */
   verifyJwt(token: string): string | object {
     return jwtVerify(token)
   }
 
+  /** Create a user's jwt from their email */
   userJwt(email: string): string {
     return makeUserJwt(email)
   }
 }
 
+/** Inster data into the database */
 async function insertRows(knex: Knex, table: string, records: any[]) {
   await knex(table).insert(records)
   let rows: any[] = await knex(table).select('id')
   return rows.map(o => o.id)
 }
 
+/** Seed the in-memory database with posters, options, devices and votes */
 export async function seedPosters(knex: Knex, userJwt: string) {
   const [poster_id] = await knex(Table.poster).insert({
     name: 'name',

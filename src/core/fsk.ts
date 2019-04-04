@@ -3,7 +3,6 @@
  *   - Also places the audio file in the upload directory uploads/
  */
 
-// Puts uploads to ~/uploads
 import fs from 'fs'
 import { join, extname } from 'path'
 import download from 'download'
