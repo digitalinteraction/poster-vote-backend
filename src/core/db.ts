@@ -5,12 +5,12 @@
 import Knex from 'knex'
 import { join } from 'path'
 import * as fs from 'fs'
-import { promisify } from 'util'
 import { Record } from '../types'
 import { Table, check, cross } from '../const'
 import validateEnv = require('valid-env')
 
-const readdir = promisify(fs.readdir)
+// import { promisify } from 'util'
+// const readdir = promisify(fs.readdir)
 
 type Migration = Record & {
   name: string
@@ -63,7 +63,12 @@ export class MigrationManager {
     let basePath = join(__dirname, '../migrations')
     let paths = fs.readdirSync(basePath)
 
-    paths = paths.filter(p => /\.[tj]s$/.test(p))
+    // Get the extension of the current file
+    // and create a regex to match files with the same (exact) extension
+    let extension = __filename.split('.').pop()
+    let extensionRegExp = new RegExp(`^.+?\\.${extension}$`)
+
+    paths = paths.filter(p => extensionRegExp.test(p))
 
     return paths.map(file => ({
       name: file.replace(/\..+$/, ''),
