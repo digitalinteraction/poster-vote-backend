@@ -31,7 +31,7 @@
   "dependencies": {
     "@robb_j/chowchow": "^0.5.4",
     "@robb_j/chowchow-auth": "^0.2.0",
-    "@robb_j/chowchow-json-envelope": "^0.2.0",
+    "@robb_j/chowchow-json-envelope": "^0.2.1",
     "@robb_j/chowchow-logger": "^0.3.0",
     "@sendgrid/mail": "^6.3.1",
     "chalk": "^2.4.2",

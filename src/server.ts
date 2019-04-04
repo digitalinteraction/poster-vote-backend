@@ -150,6 +150,8 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
     // Misc routes
     app.get('/', r(routes.general.hello))
     app.use('/static', express.static('static'))
+
+    app.get('*', r(routes.general.notFound))
   })
 
   //
