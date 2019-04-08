@@ -277,8 +277,11 @@ export async function voteFinish({
 
     // TODO: Add url-shortened link to view poster online
 
-    voice.say(`Thank you for recording votes, we will send you them as an SMS.`)
-    voice.sms(smsLines.join('\n\r'))
+    let sms = smsLines.join('\n\r')
+    if (sms.length >= 160) sms = `View PosterVote results at ${url}`
+
+    voice.say(`Thank you for recording votes, we have sent you them as an SMS.`)
+    voice.sms(sms)
   } catch (error) {
     logger.error(error.message, { stack: error.stack })
     voice.say(`Sorry, we couldn't process that, starting again.`)
