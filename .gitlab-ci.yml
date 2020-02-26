@@ -1,28 +1,19 @@
 #
 # A GitLab CI file to build a docker image on push when the commit is tagged
-# NOTE - When using `npm version` add `tag-version-prefix=""` to `.npmrc`
 # NOTE - Tags aren't pushed by default, you can `git push --tags` each time
 #        or `git config --global push.followTags true`
 #
 
-variables:
-  DOCKER_DRIVER: overlay2
-
-services:
-  - docker:dind
-
-stages:
-  - build
-
-build_img:
-  stage: build
+#
+# ref: https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
+#
+build-versioned-docker-image:
   only:
     - tags
-  tags:
-    - dind
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ['']
   script:
-    - if [ -z "$CI_COMMIT_TAG" ]; then exit 0; fi
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - echo "Building image $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
-    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG" .
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+    - IMAGE_TAG=$CI_REGISTRY_IMAGE:`echo $CI_COMMIT_TAG | sed 's/^v//'`
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $IMAGE_TAG
