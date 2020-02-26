@@ -18,7 +18,7 @@ import { PosterWithOptions } from '../core/queries'
 
 const submitMsg = `After the beep, hold the bottom two poster buttons then place your phone against the poster's speaker`
 
-const ivrUrl = (path: string) => `/ivr/${path}`
+const ivrUrl = (path: string) => `${process.env.API_URL}/ivr/${path}`
 
 /** Make a phone number speakable to twilio by putting spaces between each digit */
 const speakableNumber = (number: number) =>
