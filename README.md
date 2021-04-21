@@ -5,7 +5,7 @@ It is an [Express](https://expressjs.com/) server written in [TypeScript](https:
 It connects to a [MySQL](https://www.mysql.com/) database and uses migrations to manage tables.
 It also has a CLI to perform migrations and perform other useful tasks.
 
-[What is PosterVote?](https://github.com/poster-vote/about)
+[What is PosterVote?](https://github.com/digitalinteraction/poster-vote)
 
 <!-- toc-head -->
 
