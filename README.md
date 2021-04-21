@@ -176,4 +176,4 @@ Commands:
 
 ---
 
-> The code on https://github.com/poster-vote/node-backend is a mirror of https://openlab.ncl.ac.uk/gitlab/poster-vote/node-backend
+> The code on https://github.com/digitalinteraction/poster-vote-backend is a mirror of https://openlab.ncl.ac.uk/gitlab/poster-vote/node-backend
