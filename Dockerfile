@@ -1,30 +1,25 @@
 # [0] A common base for both stages
-FROM node:11-alpine as base
+FROM node:16-alpine as base
+RUN apk add --no-cache git openssh-client \
+  && mkdir /app && chown -R node:node /app
+COPY --chown=node ["package*.json", "tsconfig.json", "/app/"]
+USER node
 WORKDIR /app
-COPY ["package.json", "package-lock.json", "tsconfig.json", "/app/"]
 
 # [1] A builder to install modules and run a build
-# (installs production deps., clones them then installs dev)
 FROM base as builder
 ENV NODE_ENV development
 RUN npm ci
-COPY src /app/src
-RUN npm run build -s
-COPY bin /app/bin
+COPY --chown=node ["src", "/app/src"]
+RUN npm run build
 
-# [2] Run tests (sqlite3 doesn't play nicely with alpine)
-# FROM builder as tester
-# ENV NODE_ENV testing
-# RUN npm test -s
-
-# [3] From the base, copy the dist/ and production node modules in and start
-FROM builder as dist
-COPY --from=openlab/fsk /usr/bin/fsk /usr/bin/fsk
-COPY views /app/views
-COPY static /app/static
-COPY ["bin/cli", "/usr/bin/"]
+# [2] From the base again, install production deps and copy compilled code
+FROM base as dist
+COPY --chown=node --from=openlab/fsk /usr/bin/fsk /usr/bin/fsk
 ENV NODE_ENV production
-RUN npm ci
-VOLUME /app/uploads
+RUN npm ci && npm cache clean --force
+COPY --chown=node ["static", "/app/static"]
+COPY --chown=node ["views", "/app/views"]
+COPY --from=builder --chown=node ["/app/dist", "/app/dist"]
 ENTRYPOINT [ "node", "dist/cli.js" ]
 CMD ["serve"]
