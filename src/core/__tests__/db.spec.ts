@@ -1,4 +1,4 @@
-import Knex from 'knex'
+import createKnex, { Knex } from 'knex'
 import { MigrationManager } from '../db'
 import { expect } from 'chai'
 import { Table } from '../../const'
@@ -9,10 +9,10 @@ describe('MigrationManager', () => {
 
   beforeEach(async () => {
     try {
-      knex = Knex({
+      knex = createKnex({
         client: 'sqlite3',
         connection: { filename: ':memory:' },
-        useNullAsDefault: true
+        useNullAsDefault: true,
       })
       mm = new MigrationManager(knex)
     } catch (err) {
@@ -47,7 +47,7 @@ describe('MigrationManager', () => {
   })
 
   describe('#sync', () => {
-    it('should run all migrations', async function() {
+    it('should run all migrations', async function () {
       this.timeout(10000)
       await mm.sync()
       let migrations = await knex(Table.migration)

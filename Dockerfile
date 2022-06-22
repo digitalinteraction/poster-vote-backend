@@ -26,4 +26,5 @@ COPY ["bin/cli", "/usr/bin/"]
 ENV NODE_ENV production
 RUN npm ci
 VOLUME /app/uploads
-CMD [ "npm", "start", "-s" ]
+ENTRYPOINT [ "node", "dist/cli.js" ]
+CMD ["serve"]

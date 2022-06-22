@@ -2,18 +2,47 @@
  *  This is the CLI entrypoint to the app, providing different commands
  */
 
-import program from 'commander'
+import { Command } from 'commander'
 import { dbFromEnvironment, MigrationManager } from './core/db'
+import { setupFskDirectories } from './core/fsk'
 import { makeUserJwt } from './core/jwt'
-import chalk from 'chalk'
+import { checkEnvironment, setupEnvironment } from './env'
+import { makeServer } from './server'
 
-let knex = dbFromEnvironment()
+const program = new Command()
+
+const knex = dbFromEnvironment()
 
 let commandRan = false
-let migrator = new MigrationManager(knex, true)
-let warn = chalk.bold.red('DANGER') + ' '
+const migrator = new MigrationManager(knex, true)
+const warn = 'DANGER: '
 
 program.version('0.1.0')
+
+/**
+ *  This is the entrypoint to the application, it:
+ *  1. Validates and sets up the environment
+ *  2. Connects to the database
+ *  3. Starts the server on port 3000
+ */
+program
+  .command('serve')
+  .description('Run the server')
+  .action(async () => {
+    commandRan = true
+    setupEnvironment(process.env.NODE_ENV || 'production')
+
+    checkEnvironment()
+
+    setupFskDirectories()
+
+    const knex = dbFromEnvironment()
+    const app = makeServer(knex)
+
+    await app.start()
+
+    console.log('Listening on :3000')
+  })
 
 program
   .command('db:migrate')
@@ -48,7 +77,7 @@ program
   .action(async (email: string) => {
     commandRan = true
     let token = makeUserJwt(email)
-    console.log(chalk.green('token:'), chalk.cyan.underline(token))
+    console.log('token:', token)
   })
 
 program.parse(process.argv)

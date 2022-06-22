@@ -9,10 +9,10 @@ import { JsonEnvelopeContext } from '@robb_j/chowchow-json-envelope'
 import { KnexContext } from './modules/KnexModule'
 
 export type RouteContext = BaseContext &
+  KnexContext &
   LoggerContext &
   AuthContext &
-  JsonEnvelopeContext &
-  KnexContext
+  JsonEnvelopeContext
 
 export type Route = (ctx: RouteContext) => Promise<any> | any
 

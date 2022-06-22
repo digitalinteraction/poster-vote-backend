@@ -2,12 +2,12 @@
  *  A class to manage database access & run migrations
  */
 
-import Knex from 'knex'
+import createKnex, { Knex } from 'knex'
 import { join } from 'path'
 import * as fs from 'fs'
 import { Record } from '../types'
 import { Table, check, cross } from '../const'
-import validateEnv = require('valid-env')
+import validateEnv from 'valid-env'
 
 type Migration = Record & {
   name: string
@@ -21,9 +21,9 @@ type Migrator = {
 
 export function dbFromEnvironment(): Knex {
   validateEnv(['DB_TYPE', 'DB_URI'])
-  return Knex({
+  return createKnex({
     client: process.env.DB_TYPE,
-    connection: process.env.DB_URI
+    connection: process.env.DB_URI,
   })
 }
 
@@ -36,7 +36,7 @@ export class MigrationManager {
     let hasTable = await this.knex.schema.hasTable(Table.migration)
     if (hasTable) return
 
-    await this.knex.schema.createTable(Table.migration, table => {
+    await this.knex.schema.createTable(Table.migration, (table) => {
       table.increments()
       table.timestamps(true, true)
       table.string('name')
@@ -65,11 +65,11 @@ export class MigrationManager {
     let extension = __filename.split('.').pop()
     let extensionRegExp = new RegExp(`^.+?\\.${extension}$`)
 
-    paths = paths.filter(p => extensionRegExp.test(p))
+    paths = paths.filter((p) => extensionRegExp.test(p))
 
-    return paths.map(file => ({
+    return paths.map((file) => ({
       name: file.replace(/\..+$/, ''),
-      ...require(join(basePath, file))
+      ...require(join(basePath, file)),
     }))
   }
 
@@ -83,7 +83,7 @@ export class MigrationManager {
 
       // If we have a version, filter out executed migrators
       if (currentVersion !== undefined) {
-        let pivot = migrators.findIndex(m => m.name === currentVersion)
+        let pivot = migrators.findIndex((m) => m.name === currentVersion)
         migrators = pivot === -1 ? migrators : migrators.slice(pivot + 1)
       }
 
@@ -93,14 +93,13 @@ export class MigrationManager {
 
       // Run each migration
       for (let migrator of migrators) {
-        await this.knex.transaction(trx => this.doMigration(trx, migrator))
+        await this.knex.transaction((trx) => this.doMigration(trx, migrator))
         if (this.outputMigrations) {
           console.log(check, migrator.name)
         }
       }
     } catch (error) {
-      console.log(error)
-      console.log(cross, error.message)
+      console.log(cross, error)
     }
   }
 
@@ -116,13 +115,13 @@ export class MigrationManager {
       // Get our migrators and the current migration level
       let currentVersion = await this.currentVersion()
       let migrators = new Map<string, Migrator>()
-      ;(await this.getMigrators()).forEach(migrator =>
+      ;(await this.getMigrators()).forEach((migrator) =>
         migrators.set(migrator.name, migrator)
       )
 
       // If there is a current version, filter out non-performed migrations
       if (currentVersion !== undefined) {
-        let pivot = records.findIndex(r => r.name === currentVersion)
+        let pivot = records.findIndex((r) => r.name === currentVersion)
         records = pivot === -1 ? records : records.slice(pivot)
       }
 
@@ -139,13 +138,13 @@ export class MigrationManager {
       // Run through each migration, undoing them in a transaction
       for (let migration of records) {
         let migrator = migrators.get(migration.name)!
-        await this.knex.transaction(trx => this.undoMigration(trx, migrator))
+        await this.knex.transaction((trx) => this.undoMigration(trx, migrator))
         if (this.outputMigrations) {
           console.log(check, migrator.name)
         }
       }
     } catch (error) {
-      console.log(cross, error.message)
+      console.log(cross, error)
     }
   }
 
@@ -163,8 +162,6 @@ export class MigrationManager {
   /** Reset a migration and delete from the migrations table */
   private async undoMigration(knex: Knex, migrator: Migrator) {
     await migrator.down(knex)
-    await knex(Table.migration)
-      .where({ name: migrator.name })
-      .delete()
+    await knex(Table.migration).where({ name: migrator.name }).delete()
   }
 }

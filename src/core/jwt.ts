@@ -17,13 +17,10 @@ import crypto from 'crypto'
 
 /** Securely hash an email to be stored / checked */
 export const hashEmail = (email: string) =>
-  crypto
-    .createHash('sha256')
-    .update(email)
-    .digest('base64')
+  crypto.createHash('sha256').update(email).digest('base64')
 
 export function makeUserJwt(email: string): string {
   return jwtSign({
-    usr: hashEmail(email.toLowerCase())
+    usr: hashEmail(email.toLowerCase()),
   })
 }

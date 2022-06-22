@@ -13,7 +13,7 @@ import { AuthModule, SendgridStrategy } from '@robb_j/chowchow-auth'
 import express from 'express'
 import cors from 'cors'
 import escapeStringRegexp from 'escape-string-regexp'
-import Knex from 'knex'
+import createKnex, { Knex } from 'knex'
 import pug from 'pug'
 import serveFavicon from 'serve-favicon'
 
@@ -37,7 +37,7 @@ export const loginTemplate = pug.compileFile(
 export function formatLoginEmail(email: string, link: string) {
   return loginTemplate({
     username: email.split('@')[0],
-    loginUrl: link
+    loginUrl: link,
   })
 }
 
@@ -66,7 +66,7 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   const loggerModule = new LoggerModule({
     path: process.env.LOG_PATH,
     enableAccessLogs: typeof process.env.LOG_PATH === 'string',
-    enableErrorLogs: typeof process.env.LOG_PATH === 'string'
+    enableErrorLogs: typeof process.env.LOG_PATH === 'string',
   })
 
   //
@@ -76,14 +76,14 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
     {
       loginRedir: process.env.WEB_URL!,
       publicUrl: process.env.API_URL!,
-      cookieName
+      cookieName,
     },
     [
       new SendgridStrategy({
         fromEmail: process.env.ADMIN_EMAIL!,
         emailSubject: 'PosterVote login',
-        emailBody: formatLoginEmail
-      })
+        emailBody: (email, link) => formatLoginEmail(email, link),
+      }),
     ]
   )
 
@@ -95,16 +95,12 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
   //
   // Setup ChowChow to use our modules
   //
-  chow
-    .use(jsonEnvelopeModule)
-    .use(loggerModule)
-    .use(authModule)
-    .use(knexModule)
+  chow.use(jsonEnvelopeModule).use(loggerModule).use(authModule).use(knexModule)
 
   //
   // Add express middleware
   //
-  chow.applyMiddleware(app => {
+  chow.applyMiddleware((app) => {
     // Trust reverse proxies
     app.set('trust proxy', 1)
 
@@ -115,7 +111,7 @@ export function setupServer(chow: ChowChow<RouteContext>, knex: Knex) {
     app.use(
       cors({
         origin: process.env.WEB_URL,
-        credentials: true
+        credentials: true,
       })
     )
 

@@ -14,7 +14,7 @@ export const environments = {
     WEB_URL: 'http://localhost:8080',
     FSK_CMD: 'docker run -i --rm openlab/fsk',
     LOG_PATH: 'logs',
-    LOG_LEVEL: 'silly'
+    LOG_LEVEL: 'silly',
   },
 
   testing: {
@@ -28,13 +28,13 @@ export const environments = {
     ADMIN_EMAIL: 'testing@example.com',
     SENDGRID_TOKEN: 'testing_sendgrid_token',
     REG_TWILIO_NUMBER: '07880 123456',
-    VOTE_TWILIO_NUMBER: '07880 654321'
+    VOTE_TWILIO_NUMBER: '07880 654321',
   },
 
   production: {
     FSK_CMD: 'fsk',
-    LOG_PATH: 'logs'
-  }
+    LOG_PATH: 'logs',
+  },
 } as DefaultEnvMap
 
 /** Checks that the required environment variables are set */
@@ -50,7 +50,7 @@ export function checkEnvironment() {
     'SENDGRID_TOKEN',
     'HASH_SECRET',
     'REG_TWILIO_NUMBER',
-    'VOTE_TWILIO_NUMBER'
+    'VOTE_TWILIO_NUMBER',
   ])
 }
 

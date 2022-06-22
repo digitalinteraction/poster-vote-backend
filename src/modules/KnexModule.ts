@@ -4,7 +4,7 @@
 
 import { ChowChow, Module, BaseContext } from '@robb_j/chowchow'
 import { Application } from 'express'
-import Knex from 'knex'
+import { Knex } from 'knex'
 
 import { Queries, makeQueries } from '../core/queries'
 

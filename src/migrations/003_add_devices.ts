@@ -1,17 +1,17 @@
-import Knex from 'knex'
+import createKnex, { Knex } from 'knex'
 
 //
 // A database migration to add devices and device_poster tables
 //
 
 export async function up(knex: Knex) {
-  await knex.schema.createTable('devices', table => {
+  await knex.schema.createTable('devices', (table) => {
     table.increments()
     table.timestamps(true, true)
     table.integer('uuid').unsigned()
   })
 
-  await knex.schema.createTable('device_poster', table => {
+  await knex.schema.createTable('device_poster', (table) => {
     table.increments()
     table.timestamps(true, true)
     table.integer('poster_id').unsigned()

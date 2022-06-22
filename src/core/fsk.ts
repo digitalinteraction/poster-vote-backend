@@ -45,7 +45,7 @@ export async function processFskFile(path: string): Promise<VoteResult> {
 
   return {
     uuid: parseInt(deviceId, 10),
-    votes: votes.map(str => parseInt(str, 10))
+    votes: votes.map((str) => parseInt(str, 10)),
   }
 }
 

@@ -19,7 +19,7 @@ export async function index({ req, sendData, knex, jwt }: RouteContext) {
 
   let query = {
     creator_hash: jwt.sub,
-    active: true
+    active: true,
   }
 
   let posters = await knex('posters').where(query)
@@ -47,7 +47,7 @@ export async function create({
   sendData,
   knex,
   jwt,
-  queries
+  queries,
 }: RouteContext) {
   if (!jwt) throw new BadAuth()
 
@@ -55,10 +55,10 @@ export async function create({
   let { name, question, options } = BadParams.check<Params>(req.body, {
     name: 'string',
     question: 'string',
-    options: 'object'
+    options: 'object',
   })
 
-  if (!Array.isArray(options) || options.some(o => typeof o !== 'string')) {
+  if (!Array.isArray(options) || options.some((o) => typeof o !== 'string')) {
     throw BadParams.shouldBe('options', 'string[]')
   }
 
@@ -77,7 +77,7 @@ export async function create({
     code = Math.floor(Math.random() * 999999)
   } while (allCodes.includes(code))
 
-  let poster = await knex.transaction(async trx => {
+  let poster = await knex.transaction(async (trx) => {
     const [id] = await trx('posters').insert({
       name,
       question,
@@ -85,13 +85,13 @@ export async function create({
       colour,
       owner,
       contact,
-      creator_hash: jwt.sub
+      creator_hash: jwt.sub,
     })
 
     let optionRecords = options.map((option, value) => ({
       text: option,
       value: value + 1,
-      poster_id: id
+      poster_id: id,
     }))
 
     await trx('poster_options').insert(optionRecords)
@@ -110,7 +110,7 @@ export async function update({
   jwt,
   knex,
   queries,
-  sendData
+  sendData,
 }: RouteContext) {
   if (!jwt) throw new BadAuth()
 
@@ -138,11 +138,7 @@ export async function update({
   let updates = new Array<any>()
 
   if (Object.keys(posterChanges).length > 0) {
-    updates.push(
-      knex(Table.poster)
-        .where('id', posterId)
-        .update(posterChanges)
-    )
+    updates.push(knex(Table.poster).where('id', posterId).update(posterChanges))
   }
 
   if (Array.isArray(req.body.options)) {
@@ -156,7 +152,7 @@ export async function update({
           knex(Table.posterOption).insert({
             poster_id: posterId,
             value: optionChange.value,
-            text: optionChange.text
+            text: optionChange.text,
           })
         )
       } else {
@@ -184,12 +180,10 @@ export async function destroy({ req, jwt, knex, sendData }: RouteContext) {
   let query = {
     id: parseInt(req.params.id),
     creator_hash: jwt.sub,
-    active: true
+    active: true,
   }
 
-  await knex('posters')
-    .where(query)
-    .update({ active: false })
+  await knex('posters').where(query).update({ active: false })
 
   sendData('ok')
 }
@@ -212,7 +206,7 @@ export async function votes({ req, sendData, knex, queries }: RouteContext) {
   // Fetch & send the votes
   sendData({
     lastUpdate: updatedResult[0] ? updatedResult[0].max : null,
-    votes: await queries.posterVotes(id)
+    votes: await queries.posterVotes(id),
   })
 }
 
@@ -231,7 +225,7 @@ export async function print({ req, res, queries }: RouteContext) {
     size: [height, width],
     autoFirstPage: false,
     margin: 0,
-    layout: 'landscape'
+    layout: 'landscape',
   })
 
   doc.pipe(res)
@@ -252,16 +246,16 @@ export async function print({ req, res, queries }: RouteContext) {
   doc.fontSize(32)
   doc.text(poster.question, convert(8.6), convert(8.6), {
     width: convert(129.8),
-    lineBreak: true
+    lineBreak: true,
   })
 
   // Options text
   doc.fontSize(16)
   let optionY = convert(18.6) - 16 / 3
-  poster.options.forEach(option => {
+  poster.options.forEach((option) => {
     doc.text(option.text, convert(152.1), optionY, {
       width: convert(110),
-      lineBreak: false
+      lineBreak: false,
     })
     optionY += convert(30)
   })
@@ -274,7 +268,7 @@ export async function print({ req, res, queries }: RouteContext) {
     convert(106.5),
     {
       width: convert(123),
-      lineBreak: true
+      lineBreak: true,
     }
   )
 
@@ -282,28 +276,28 @@ export async function print({ req, res, queries }: RouteContext) {
   doc.fontSize(15)
   doc.text(`Call `, convert(29.7), convert(132.4), {
     width: convert(110),
-    continued: true
+    continued: true,
   })
   doc.text(process.env.VOTE_TWILIO_NUMBER!, {
     continued: true,
-    underline: true
+    underline: true,
   })
   doc.text(
     ' to see how people have been voting, placing your phone over the hashed area to record votes.',
     {
-      underline: false
+      underline: false,
     }
   )
 
   // Owner text
   doc.fontSize(15)
   doc.text('Poster created by ', convert(8.6), convert(182), {
-    continued: true
+    continued: true,
   })
   doc.text(poster.owner || 'PosterVote', { underline: true })
   doc.text('for more information contact ', {
     continued: true,
-    underline: false
+    underline: false,
   })
   doc.text(poster.contact || 'openlab@ncl.ac.uk', { underline: true })
 
@@ -333,7 +327,7 @@ export async function print({ req, res, queries }: RouteContext) {
       `Register the device by calling ${process.env
         .REG_TWILIO_NUMBER!} using code ${poster.code}`,
       'Place poster in desired location to collect votes',
-      `Check votes as they are registered at ${voteUrl}`
+      `Check votes as they are registered at ${voteUrl}`,
     ],
     convert(8.6),
     convert(28.7),

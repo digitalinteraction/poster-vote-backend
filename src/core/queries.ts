@@ -2,7 +2,7 @@
  *  A utility for named & reusable queries on the database
  */
 
-import * as Knex from 'knex'
+import { Knex } from 'knex'
 
 import { Poster, PosterOption } from '../types'
 import { Table } from '../const'
@@ -35,9 +35,7 @@ export const makeQueries = (knex: Knex): Queries => ({
   },
 
   async posterWithOptions(id) {
-    let poster = await knex(Table.poster)
-      .where({ id, active: true })
-      .first()
+    let poster = await knex(Table.poster).where({ id, active: true }).first()
 
     if (!poster) return null
 
@@ -53,7 +51,7 @@ export const makeQueries = (knex: Knex): Queries => ({
       .select([
         'poster_options.id',
         'poster_options.text',
-        'poster_options.value'
+        'poster_options.value',
       ])
       .min({ min: 'device_counts.value' })
       .max({ max: 'device_counts.value' })
@@ -70,7 +68,7 @@ export const makeQueries = (knex: Knex): Queries => ({
     const keyedVotes: { [idx: number]: number } = {}
 
     // Count the votes for each option
-    allVotes.forEach(v => {
+    allVotes.forEach((v) => {
       if (!keyedVotes[v.id]) keyedVotes[v.id] = 0
       keyedVotes[v.id] += v.max - v.min
     })
@@ -80,10 +78,10 @@ export const makeQueries = (knex: Knex): Queries => ({
     for (let optionId in keyedVotes) {
       output.push({
         option_id: parseInt(optionId, 10),
-        vote: keyedVotes[optionId]
+        vote: keyedVotes[optionId],
       })
     }
 
     return output
-  }
+  },
 })

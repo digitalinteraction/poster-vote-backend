@@ -4,7 +4,7 @@
 
 import { setupEnvironment } from '../env'
 import { MigrationManager } from './db'
-import Knex from 'knex'
+import createKnex, { Knex } from 'knex'
 import { Table } from '../const'
 import { RouteContext } from '../types'
 import supertest from 'supertest'
@@ -44,10 +44,10 @@ export class TestHarness {
     setupEnvironment('testing')
 
     // Connect to an in-memory sqline database
-    this.knex = Knex({
+    this.knex = createKnex({
       client: 'sqlite3',
       connection: { filename: ':memory:' },
-      useNullAsDefault: true
+      useNullAsDefault: true,
     })
 
     // Create a migration manager
@@ -71,8 +71,10 @@ export class TestHarness {
 
   /** Clear all tables */
   async clear() {
-    return this.knex.transaction(trx => {
-      return Promise.all(Object.values(Table).map(table => trx(table).delete()))
+    return this.knex.transaction((trx) => {
+      return Promise.all(
+        Object.values(Table).map((table) => trx(table).delete())
+      )
     })
   }
 
@@ -96,7 +98,7 @@ export class TestHarness {
 async function insertRows(knex: Knex, table: string, records: any[]) {
   await knex(table).insert(records)
   let rows: any[] = await knex(table).select('id')
-  return rows.map(o => o.id)
+  return rows.map((o) => o.id)
 }
 
 /** Seed the in-memory database with posters, options, devices and votes */
@@ -109,7 +111,7 @@ export async function seedPosters(knex: Knex, userJwt: string) {
     colour: 'C0FFEE',
     owner: 'Geoff Testington',
     contact: 'geoff@test.io',
-    active: true
+    active: true,
   })
 
   // An inactive poster
@@ -119,7 +121,7 @@ export async function seedPosters(knex: Knex, userJwt: string) {
     code: 123456,
     creator_hash: userJwt,
     colour: 'C0FFEE',
-    active: false
+    active: false,
   })
 
   // A poster for a different user
@@ -129,7 +131,7 @@ export async function seedPosters(knex: Knex, userJwt: string) {
     code: 123456,
     creator_hash: 'an_non_active_user',
     colour: 'C0FFEE',
-    active: false
+    active: false,
   })
 
   // Add some options to our poster
@@ -139,14 +141,14 @@ export async function seedPosters(knex: Knex, userJwt: string) {
     [
       { text: 'Option A', value: 1, poster_id },
       { text: 'Option B', value: 2, poster_id },
-      { text: 'Option C', value: 3, poster_id }
+      { text: 'Option C', value: 3, poster_id },
     ]
   )
 
   // Create some devices
   const deviceIds = await insertRows(knex, Table.device, [
     { uuid: 1 },
-    { uuid: 2 }
+    { uuid: 2 },
   ])
 
   const [devicePosterA, devicePosterB] = await insertRows(
@@ -154,14 +156,14 @@ export async function seedPosters(knex: Knex, userJwt: string) {
     Table.devicePoster,
     [
       { poster_id, device_id: deviceIds[0] },
-      { poster_id, device_id: deviceIds[1] }
+      { poster_id, device_id: deviceIds[1] },
     ]
   )
 
   const makeCount = (v: number, devicePosterId: number, optionId: number) => ({
     value: v,
     poster_option_id: optionId,
-    device_poster_id: devicePosterId
+    device_poster_id: devicePosterId,
   })
 
   // Create the initial counts
@@ -171,7 +173,7 @@ export async function seedPosters(knex: Knex, userJwt: string) {
     makeCount(0, devicePosterA, optionC),
     makeCount(10, devicePosterB, optionA),
     makeCount(15, devicePosterB, optionB),
-    makeCount(20, devicePosterB, optionC)
+    makeCount(20, devicePosterB, optionC),
   ])
 
   // Create the final counts
@@ -181,7 +183,7 @@ export async function seedPosters(knex: Knex, userJwt: string) {
     makeCount(15, devicePosterA, optionC),
     makeCount(30, devicePosterB, optionA),
     makeCount(25, devicePosterB, optionB),
-    makeCount(20, devicePosterB, optionC)
+    makeCount(20, devicePosterB, optionC),
   ])
 
   // Total votes:

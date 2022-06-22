@@ -78,7 +78,7 @@ describe('Posters', () => {
         .send({
           name: 'New Poster',
           question: 'What do you think?',
-          options: ['A', 'B', 'C']
+          options: ['A', 'B', 'C'],
         })
       expect(res.status).to.equal(200)
     })
@@ -89,7 +89,7 @@ describe('Posters', () => {
         .send({
           name: 'New Poster',
           question: 'What do you think?',
-          options: ['A', 'B', 'C']
+          options: ['A', 'B', 'C'],
         })
       let poster = res.body.data
       expect(poster.name).to.equal('New Poster')
@@ -107,7 +107,7 @@ describe('Posters', () => {
           owner: 'Owner',
           contact: 'Contact',
           colour: 'C0FFEE',
-          options: ['A', 'B', 'C']
+          options: ['A', 'B', 'C'],
         })
       let [poster = {}] = await harness.knex(Table.poster).select('*')
       let options = await harness.knex(Table.posterOption).select('*')
@@ -137,16 +137,13 @@ describe('Posters', () => {
     })
 
     it('should update the poster', async () => {
-      await agent
-        .put(posterUri)
-        .query(authn)
-        .send({
-          name: 'newName',
-          question: 'newQuestion',
-          owner: 'newOwner',
-          contact: 'newContact',
-          colour: '#f95162'
-        })
+      await agent.put(posterUri).query(authn).send({
+        name: 'newName',
+        question: 'newQuestion',
+        owner: 'newOwner',
+        contact: 'newContact',
+        colour: '#f95162',
+      })
 
       let [updated] = await harness.knex(Table.poster).where('id', posterId)
 
@@ -165,8 +162,8 @@ describe('Posters', () => {
           options: [
             { value: 1, text: 'Updated Option A' },
             { value: 2, text: 'Updated Option B' },
-            { value: 3, text: 'Updated Option C' }
-          ]
+            { value: 3, text: 'Updated Option C' },
+          ],
         })
 
       let [a, b, c] = await harness
@@ -184,7 +181,7 @@ describe('Posters', () => {
         .put(posterUri)
         .query(authn)
         .send({
-          options: [{ value: 4, text: 'Option D' }]
+          options: [{ value: 4, text: 'Option D' }],
         })
 
       let [d] = await harness

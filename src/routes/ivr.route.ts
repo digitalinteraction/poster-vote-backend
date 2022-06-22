@@ -11,6 +11,7 @@ import * as express from 'express'
 import { twiml } from 'twilio'
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse'
 import { PosterWithOptions } from '../core/queries'
+import winston from 'winston'
 
 //-
 //- Utils
@@ -22,10 +23,7 @@ const ivrUrl = (path: string) => `${process.env.API_URL}/ivr/${path}`
 
 /** Make a phone number speakable to twilio by putting spaces between each digit */
 const speakableNumber = (number: number) =>
-  number
-    .toString()
-    .split('')
-    .join(' ')
+  number.toString().split('').join(' ')
 
 /** Send twiml to an express response */
 function sendTwiml(res: express.Response, voice: VoiceResponse): void {
@@ -36,18 +34,26 @@ function sendTwiml(res: express.Response, voice: VoiceResponse): void {
   res.send(voice.toString())
 }
 
+function logError(logger: winston.Logger, error: unknown) {
+  if (error instanceof Error) {
+    logger.error(error.message, { stack: error.stack })
+  } else {
+    logger.error(error)
+  }
+}
+
 function makeCountRecords(
   poster: PosterWithOptions,
   votes: number[],
   devicePosterId: number
 ) {
-  let optionIds = poster.options.map(o => o.id).reverse()
+  let optionIds = poster.options.map((o) => o.id).reverse()
   return votes
     .filter((_count, index) => optionIds[index])
     .map((count, index) => ({
       value: count,
       poster_option_id: optionIds[index],
-      device_poster_id: devicePosterId
+      device_poster_id: devicePosterId,
     }))
 }
 
@@ -61,7 +67,7 @@ export function registerStart({ res }: RouteContext) {
   const gather = voice.gather({
     method: 'GET',
     action: ivrUrl('register/poster'),
-    timeout: 10
+    timeout: 10,
   })
 
   gather.say(
@@ -80,11 +86,14 @@ export async function registerWithDigits({
   req,
   res,
   knex,
-  logger
+  logger,
 }: RouteContext) {
   // Start a twiml response
   const voice = new twiml.VoiceResponse()
-  const posterId = req.query.Digits && parseInt(req.query.Digits, 10)
+  const posterId =
+    typeof req.query.Digits === 'string'
+      ? parseInt(req.query.Digits, 10)
+      : undefined
 
   try {
     // Fail if there isn't a ?Digits url parameter
@@ -120,13 +129,13 @@ export async function registerWithDigits({
       maxLength: 23,
       timeout: 23,
       trim: 'do-not-trim',
-      finishOnKey: '#'
+      finishOnKey: '#',
     })
 
     // Fail if they didn't record anything
     voice.say(`Sorry I didn't catch that, please try again`)
   } catch (error) {
-    logger.error(error.message, { stack: error.stack })
+    logError(logger, error)
     voice.say(`Sorry, we couldn't process that, please try again.`)
   }
 
@@ -140,7 +149,7 @@ export async function registerFinish({
   res,
   knex,
   queries,
-  logger
+  logger,
 }: RouteContext) {
   const posterId = parseInt(req.params.poster_id, 10)
   const recordingUrl = req.query.RecordingUrl as string
@@ -166,23 +175,18 @@ export async function registerFinish({
     const { uuid, votes } = await processFskFile(recordingUrl)
 
     // See if the device already exists
-    let device: Device = await knex(Table.device)
-      .where({ uuid })
-      .first()
+    let device: Device = await knex(Table.device).where({ uuid }).first()
 
     // Create the device if not found
     if (!device) {
       const [id] = await knex(Table.device).insert({ uuid })
-      device = await knex(Table.device)
-        .select('*')
-        .where({ id })
-        .first()
+      device = await knex(Table.device).select('*').where({ id }).first()
     }
 
     // Create the relation to the poster
     const [devicePosterId] = await knex(Table.devicePoster).insert({
       poster_id: posterId,
-      device_id: device.id
+      device_id: device.id,
     })
 
     // Store the counts
@@ -193,7 +197,7 @@ export async function registerFinish({
     // Let them know it was a success
     voice.say('Thank you, your device has been registered with that poster.')
   } catch (error) {
-    logger.error(error.message, { stack: error.stack })
+    logError(logger, error)
     voice.say(`Sorry, we couldn't process that, please try again.`)
   }
 
@@ -217,7 +221,7 @@ export function voteStart({ res }: RouteContext) {
     maxLength: 23,
     timeout: 23,
     trim: 'do-not-trim',
-    finishOnKey: '#'
+    finishOnKey: '#',
   })
 
   sendTwiml(res, voice)
@@ -229,7 +233,7 @@ export async function voteFinish({
   res,
   knex,
   queries,
-  logger
+  logger,
 }: RouteContext) {
   const recordingUrl = req.query.RecordingUrl as string
   const voice = new twiml.VoiceResponse()
@@ -244,9 +248,7 @@ export async function voteFinish({
     let { uuid, votes } = await processFskFile(recordingUrl)
 
     // Fetch the device or fail
-    let device: Device = await knex(Table.device)
-      .where({ uuid })
-      .first()
+    let device: Device = await knex(Table.device).where({ uuid }).first()
     if (!device) throw new Error('Device not found')
 
     // Fetch the relation of fail
@@ -283,7 +285,7 @@ export async function voteFinish({
     voice.say(`Thank you for recording votes, we have sent you them as an SMS.`)
     voice.sms(sms)
   } catch (error) {
-    logger.error(error.message, { stack: error.stack })
+    logError(logger, error)
     voice.say(`Sorry, we couldn't process that, starting again.`)
     voice.redirect({ method: 'GET' }, ivrUrl('vote/start'))
   }
