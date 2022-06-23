@@ -98,7 +98,7 @@ npm run coverage -s
 
 This repo uses [Prettier](https://prettier.io/) to automatically format code when you stage changes.
 This means that code that is pushed is always formatted to a consistent standard.
-You can manually run the formatter with `npm run prettier`.
+You can manually run the formatter with `npm run format`.
 
 ## Deployment
 
