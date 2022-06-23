@@ -2,7 +2,6 @@
   "name": "posternode",
   "version": "2.0.4",
   "private": true,
-  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "coverage": "nyc --reporter=html -n src -e .ts bin/test",
@@ -12,6 +11,7 @@
     "start": "node -r dotenv/config dist",
     "test": "bin/test",
     "dev": "node --require ts-node/register --require dotenv/config src/cli.ts",
+    "debug": "node  --inspect-brk --require ts-node/register --require dotenv/config src/cli.ts",
     "gen-toc": "npx md-toc -f '**/*.md' -i"
   },
   "dependencies": {
