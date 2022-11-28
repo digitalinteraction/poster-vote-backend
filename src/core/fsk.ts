@@ -5,11 +5,8 @@
 
 import fs from 'fs'
 import { join, extname } from 'path'
-import download from 'download'
-import childProc from 'child_process'
-import { promisify } from 'util'
-
-const exec = promisify(childProc.exec)
+import child from 'child_process'
+import fetch from 'node-fetch'
 
 const uploadDir = join(__dirname, '../../uploads/fsk')
 
@@ -27,15 +24,22 @@ type VoteResult = {
 }
 
 export async function processFskFile(path: string): Promise<VoteResult> {
-  const filename = new Date().toISOString() + (extname(path) || '.wav')
+  const req = await fetch(path)
+  if (!req.ok || !req.body) throw new Error('Unable to download file')
 
-  // Download the file into our fsk directory
-  await download(path, uploadDir, { filename })
+  const stdout = await new Promise<string>((resolve, reject) => {
+    const proc = child.exec(process.env.FSK_CMD!)
+    req.body.pipe(proc.stdin!)
 
-  // Execute the fsk binary with the local file
-  let { stdout } = await exec(
-    `cat ${uploadDir}/${filename} | ${process.env.FSK_CMD}`
-  )
+    const output: string[] = []
+    proc.on('close', (code) => {
+      if (code !== 0) reject(code)
+      else resolve(output.join(''))
+    })
+    proc.stdout!.on('data', (chunk) => {
+      output.push(chunk)
+    })
+  })
 
   let [status, deviceId, ...votes] = stdout.trim().split(',')
 

@@ -249,7 +249,7 @@ export async function voteFinish({
 
     // Fetch the device or fail
     let device: Device = await knex(Table.device).where({ uuid }).first()
-    if (!device) throw new Error('Device not found')
+    if (!device) throw new Error('Device not found: ' + uuid)
 
     // Fetch the relation of fail
     let devicePoster: DevicePoster = await knex(Table.devicePoster)
