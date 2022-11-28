@@ -51,7 +51,7 @@ nano .env
 #  -> Access from the host with mysql://user:secret@127.0.0.1:3306/postervote
 #  -> It uses a named volume so if you stop the container, the data persists
 #  -> NOTE: The first time you run this you have to add a 'postervote' table
-npm run mysql
+docker-compose up -d
 
 # Run a development server on your machine
 # -> This will watch for changes to .ts files and reload the server
