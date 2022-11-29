@@ -8,16 +8,6 @@ import { join, extname } from 'path'
 import child from 'child_process'
 import fetch from 'node-fetch'
 
-const uploadDir = join(__dirname, '../../uploads/fsk')
-
-export function setupFskDirectories() {
-  try {
-    fs.statSync(uploadDir)
-  } catch (error) {
-    fs.mkdirSync(uploadDir, { recursive: true })
-  }
-}
-
 type VoteResult = {
   uuid: number
   votes: number[]
