@@ -3,7 +3,7 @@
  */
 
 import { Command } from 'commander'
-import { bulkAppend } from './bulk'
+import { bulkAppend, bulkInsert } from './bulk'
 import { dbFromEnvironment, MigrationManager } from './core/db'
 import { makeUserJwt } from './core/jwt'
 import { checkEnvironment, setupEnvironment } from './env'
@@ -82,9 +82,8 @@ program
 program
   .command('bulk:insert')
   .description('Bulk register posters')
-  .argument('<input-file>', 'The existing bulk file or what to create')
-  .argument('<device>', 'The existing bulk file or what to create')
-  .action(async (inputFile: string, device: string) => {})
+  .argument('<input-file>', 'The file to read in')
+  .action(async (inputFile: string) => bulkInsert(inputFile))
 
 program.parseAsync(process.argv).catch((error) => {
   console.error('A fatal error occured')

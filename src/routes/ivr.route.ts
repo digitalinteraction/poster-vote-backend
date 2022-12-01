@@ -12,6 +12,7 @@ import { twiml } from 'twilio'
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse'
 import { PosterWithOptions } from '../core/queries'
 import winston from 'winston'
+import { Knex } from 'knex'
 
 //-
 //- Utils
@@ -40,21 +41,6 @@ function logError(logger: winston.Logger, error: unknown) {
   } else {
     logger.error(error)
   }
-}
-
-function makeCountRecords(
-  poster: PosterWithOptions,
-  votes: number[],
-  devicePosterId: number
-) {
-  let optionIds = poster.options.map((o) => o.id).reverse()
-  return votes
-    .filter((_count, index) => optionIds[index])
-    .map((count, index) => ({
-      value: count,
-      poster_option_id: optionIds[index],
-      device_poster_id: devicePosterId,
-    }))
 }
 
 //-
@@ -174,25 +160,12 @@ export async function registerFinish({
     // Process the audio file
     const { uuid, votes } = await processFskFile(recordingUrl)
 
-    // See if the device already exists
-    let device: Device = await knex(Table.device).where({ uuid }).first()
-
-    // Create the device if not found
-    if (!device) {
-      const [id] = await knex(Table.device).insert({ uuid })
-      device = await knex(Table.device).select('*').where({ id }).first()
-    }
-
-    // Create the relation to the poster
-    const [devicePosterId] = await knex(Table.devicePoster).insert({
-      poster_id: posterId,
-      device_id: device.id,
-    })
-
-    // Store the counts
-    await knex(Table.deviceCount).insert(
-      makeCountRecords(poster, votes, devicePosterId)
+    const { devicePosterId } = await queries.assignDevice(
+      uuid,
+      votes,
+      poster.id
     )
+    await queries.storeDeviceVotes(poster, votes, devicePosterId)
 
     // Let them know it was a success
     voice.say('Thank you, your device has been registered with that poster.')
@@ -263,9 +236,7 @@ export async function voteFinish({
     if (!poster) throw new Error('Poster not found')
 
     // Store the votes
-    await knex(Table.deviceCount).insert(
-      makeCountRecords(poster, votes, devicePoster.id)
-    )
+    await queries.storeDeviceVotes(poster, votes, devicePoster.id)
 
     // Send sms confirmation with the votes in
     let finalVotes = await queries.posterVotes(poster.id)

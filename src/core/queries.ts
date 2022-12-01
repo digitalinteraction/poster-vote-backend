@@ -4,7 +4,7 @@
 
 import { Knex } from 'knex'
 
-import { Poster, PosterOption } from '../types'
+import { Device, Poster, PosterOption } from '../types'
 import { Table } from '../const'
 
 export type PosterWithOptions = Poster & { options: PosterOption[] }
@@ -27,6 +27,15 @@ export type Queries = {
   with: (knex: Knex) => Queries
   posterWithOptions: (id: number) => Promise<PosterWithOptions | null>
   posterVotes: (id: number) => Promise<PosterVote[]>
+  assignDevice: (
+    uuid: number,
+    posterId: number
+  ) => Promise<{ deviceId: number; devicePosterId: number }>
+  storeDeviceVotes: (
+    poster: PosterWithOptions,
+    votes: number[],
+    devicePosterId: number
+  ) => Promise<void>
 }
 
 export const makeQueries = (knex: Knex): Queries => ({
@@ -83,5 +92,43 @@ export const makeQueries = (knex: Knex): Queries => ({
     }
 
     return output
+  },
+
+  async assignDevice(uuid: number, posterId: number) {
+    // See if the device already exists
+    let device: Device = await knex(Table.device).where({ uuid }).first()
+
+    // Create the device if not found
+    if (!device) {
+      const [id] = await knex(Table.device).insert({ uuid })
+      device = await knex(Table.device).select('*').where({ id }).first()
+    }
+
+    // Create the relation to the poster
+    const [devicePosterId] = await knex(Table.devicePoster).insert({
+      poster_id: posterId,
+      device_id: device.id,
+    })
+
+    return { deviceId: device.id, devicePosterId }
+  },
+
+  async storeDeviceVotes(
+    poster: PosterWithOptions,
+    votes: number[],
+    devicePosterId: number
+  ) {
+    // Reverse the order for the actual votes
+    const optionIds = poster.options.map((o) => o.id).reverse()
+
+    const records = votes
+      .filter((_count, index) => optionIds[index])
+      .map((count, index) => ({
+        value: count,
+        poster_option_id: optionIds[index],
+        device_poster_id: devicePosterId,
+      }))
+
+    await knex(Table.deviceCount).insert(records)
   },
 })

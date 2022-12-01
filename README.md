@@ -157,15 +157,42 @@ Below is is the `--help` output for reference
 Usage: cli [options] [command]
 
 Options:
-  -V, --version      output the version number
-  -h, --help         output usage information
+  -V, --version                      output the version number
+  -h, --help                         display help for command
 
 Commands:
-  db:migrate
-  db:destroy
-  db:regenerate
-  jwt:token <email>
+  serve                              Run the server
+  db:migrate                         Perform database migrations (oldest to newest)
+  db:destroy                         DANGER: Undo database migrations (newest to oldest)
+  db:regenerate                      DANGER: Undo database migrations then perform them again
+  jwt:token <email>                  Generate a JWT for a given email
+  bulk:append <input-file> <device>  Start or append-to a bulk upload file
+  bulk:insert <input-file>           Bulk register posters
+  help [command]                     display help for command
 ```
+
+### Serial bulk
+
+There are `bulk:append` and `bulk:insert` commands for bulk registering PosterVote devices agains poster records.
+The first command generates/appends to an [ndjson](http://ndjson.org/) for each device connected to over serial.
+The second command takes that ndjson file with human-added poster ids and sets them up in the database.
+
+**bulk:append**
+
+This command listens on serial for PosterVote debug info, parses the data and appends to the ndjson file.
+
+1. Plug the PosterVote USB cable in and run this command.
+2. Make sure the PosterVote has a bettery in and has booted up.
+3. Hold the cable pins agains the PosterVote device pads.
+   the red wire should go on the pad next to `MCLR` and the black wire on the middle mad.
+4. Hold down the first and third PosterVote device buttons and watch the command output.
+5. A record should have been added to the ndjson file.
+
+**bulk:insert**
+
+This command takes the ndjson file form `bulk:append` and uses it to seed the database.
+You need to edit the ndjson file and fill in the `"poster":null` bits to map each device to a poster.
+The posters need to be created before hand through the website.
 
 ## Future Work
 

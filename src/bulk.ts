@@ -1,6 +1,12 @@
-import { open, readFile } from 'fs/promises'
+// import { createWriteStream, WriteStream } from 'fs'
+import { appendFile } from 'fs/promises'
 
 import { SerialPort } from 'serialport'
+import ndjson from 'ndjson'
+import { createReadStream } from 'fs'
+import { dbFromEnvironment } from './core/db'
+import { checkEnvironment, setupEnvironment } from './env'
+import { makeQueries } from './core/queries'
 
 interface CurrentDevice {
   device?: number
@@ -8,11 +14,10 @@ interface CurrentDevice {
   votes?: number[]
 }
 
-// TODO: it needs to "flush" the write?
-
+//
+// A command to listen on serial for PosterVote debug info and append to an ndjson file
+//
 export async function bulkAppend(inputFile: string, device: string) {
-  const output = await open(inputFile, 'a')
-
   // Create a connection through USB
   const port = new SerialPort({ path: device, baudRate: 2400 }, (err) => {
     if (err) {
@@ -21,7 +26,7 @@ export async function bulkAppend(inputFile: string, device: string) {
       process.exit(1)
     }
 
-    console.debug('open')
+    console.debug('open', inputFile)
   })
 
   const reset = () => {
@@ -49,15 +54,15 @@ export async function bulkAppend(inputFile: string, device: string) {
       if (term === 'Device') {
         if (currentDevice.device !== undefined) reset()
         currentDevice.device = parseInt(value, 10)
-        console.debug('device=%o', currentDevice.device)
+        console.debug('  device=%o', currentDevice.device)
       } else if (term === 'Epoch') {
         if (currentDevice.epoch !== undefined) reset()
         currentDevice.epoch = parseInt(value, 10)
-        console.debug('epoch=%o', currentDevice.epoch)
+        console.debug('  epoch=%o', currentDevice.epoch)
       } else if (term === 'Votes') {
         if (currentDevice.votes !== undefined) reset()
         currentDevice.votes = value.split(',').map((n) => parseInt(n, 10))
-        console.debug('votes=%o', currentDevice.votes)
+        console.debug('  votes=%o', currentDevice.votes)
       } else {
         console.error('Unknown term %s=%o', term, value)
       }
@@ -68,8 +73,10 @@ export async function bulkAppend(inputFile: string, device: string) {
         currentDevice.votes !== undefined
       ) {
         console.debug('Found poster %O', currentDevice)
-        output.write(JSON.stringify(currentDevice) + '\n')
-        // ...
+        append(
+          inputFile,
+          JSON.stringify({ ...currentDevice, poster: null }) + '\n'
+        )
         currentDevice = {}
       }
     }
@@ -78,7 +85,65 @@ export async function bulkAppend(inputFile: string, device: string) {
   // Append to the file
 }
 
-export async function bulkInsert(inputFile: string, device: string) {
-  const file = await readFile(inputFile, 'utf8')
-  // const data = file.
+let writeQueue = Promise.resolve()
+export function append(file: string, text: string) {
+  writeQueue = writeQueue.then(() => {
+    console.debug('append', text)
+    return appendFile(file, text)
+  })
+}
+
+interface SerialDevice {
+  device: number
+  epoch: number
+  votes: [number, number, number, number, number]
+  poster?: number
+}
+
+export async function bulkInsert(inputFile: string) {
+  setupEnvironment(process.env.NODE_ENV ?? 'production')
+  checkEnvironment()
+  const knex = dbFromEnvironment()
+
+  // Read in all the values from the ndjson
+  // This is not idomatic use of ndjson but it works ok
+  const records: SerialDevice[] = []
+  await new Promise<void>((resolve, reject) => {
+    const stream = createReadStream(inputFile)
+    // Parse each ndjson line and store the record
+    stream.pipe(ndjson.parse()).on('data', (r) => records.push(r))
+
+    // Resolve/reject the promise based on the stream
+    stream.on('close', () => resolve())
+    stream.on('error', (err) => reject(err))
+  })
+
+  // Check the user entered poster ids
+  if (records.some((r) => r.poster === null)) {
+    console.error('not all "poster" ids are set')
+    process.exit(1)
+  }
+
+  // Run all queries in a transaction so they rollback if one fails
+  await knex.transaction(async (trx) => {
+    const queries = makeQueries(trx)
+
+    for (const record of records) {
+      // Fetch the poster and assert it exists
+      const posterId = record.poster!
+      const poster = await queries.posterWithOptions(posterId)
+      if (!poster) throw new Error(`Poster not found '${posterId}'`)
+
+      // Assign the device to the poster
+      const { devicePosterId } = await queries.assignDevice(
+        record.device,
+        poster.id
+      )
+
+      // Store the initial device counts
+      await queries.storeDeviceVotes(poster, record.votes, devicePosterId)
+    }
+  })
+
+  await knex.destroy()
 }
