@@ -1,7 +1,6 @@
 // import { createWriteStream, WriteStream } from 'fs'
 import { appendFile } from 'fs/promises'
 
-import { SerialPort } from 'serialport'
 import ndjson from 'ndjson'
 import { createReadStream } from 'fs'
 import { dbFromEnvironment } from './core/db'
@@ -18,6 +17,8 @@ interface CurrentDevice {
 // A command to listen on serial for PosterVote debug info and append to an ndjson file
 //
 export async function bulkAppend(inputFile: string, device: string) {
+  const { SerialPort } = await import('serialport')
+
   // Create a connection through USB
   const port = new SerialPort({ path: device, baudRate: 2400 }, (err) => {
     if (err) {
