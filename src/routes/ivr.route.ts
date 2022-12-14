@@ -160,11 +160,7 @@ export async function registerFinish({
     // Process the audio file
     const { uuid, votes } = await processFskFile(recordingUrl)
 
-    const { devicePosterId } = await queries.assignDevice(
-      uuid,
-      votes,
-      poster.id
-    )
+    const { devicePosterId } = await queries.assignDevice(uuid, poster.id)
     await queries.storeDeviceVotes(poster, votes, devicePosterId)
 
     // Let them know it was a success
