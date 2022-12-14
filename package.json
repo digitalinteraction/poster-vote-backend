@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "coverage": "nyc --reporter=html -n src -e .ts bin/test",
-    "preversion": "npm test -s",
+    "preversion": "npm test && npm run lint",
     "format": "prettier --write '**/*.{js,ts,json,css,md}'",
     "lint": "tsc --noEmit",
     "start": "node -r dotenv/config dist",
