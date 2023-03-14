@@ -183,10 +183,13 @@ This command listens on serial for PosterVote debug info, parses the data and ap
 
 1. Plug the PosterVote USB cable in and run this command.
 2. Make sure the PosterVote has a bettery in and has booted up.
-3. Hold the cable pins agains the PosterVote device pads.
-   the red wire should go on the pad next to `MCLR` and the black wire on the middle mad.
+3. Hold the cable pins against the PosterVote device pads,
+   the black wire should go on the middle pad with the red wire on the `MCLR` side.
 4. Hold down the first and third PosterVote device buttons and watch the command output.
 5. A record should have been added to the ndjson file.
+
+> **Device pads** — The pads are numbered 1, 2, 3, 4, 5 where MCLR is 1.
+> The serial cable should be yellow=4, black=3 & red=1
 
 **bulk:insert**
 
