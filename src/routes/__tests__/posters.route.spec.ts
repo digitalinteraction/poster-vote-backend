@@ -226,5 +226,28 @@ describe('Posters', () => {
       expect(votes[1].vote).to.equal(20)
       expect(votes[2].vote).to.equal(15)
     })
+    it('should return devices', async () => {
+      let res = await agent.get(votesUrl).query(authn)
+      let devices = res.body.data.devices
+
+      expect(devices[0].uuid).to.equal(1)
+      expect(devices[1].uuid).to.equal(2)
+    })
+    it('should return deviceVotes', async () => {
+      let res = await agent.get(votesUrl).query(authn)
+      let devices = res.body.data.devices
+      let deviceVotes = res.body.data.deviceVotes
+
+      let a = devices.find((d: any) => d.uuid === 1).id
+      let b = devices.find((d: any) => d.uuid === 2).id
+
+      expect(deviceVotes[a][0].vote).to.equal(5)
+      expect(deviceVotes[a][1].vote).to.equal(10)
+      expect(deviceVotes[a][2].vote).to.equal(15)
+
+      expect(deviceVotes[b][0].vote).to.equal(20)
+      expect(deviceVotes[b][1].vote).to.equal(10)
+      expect(deviceVotes[b][2].vote).to.equal(0)
+    })
   })
 })
