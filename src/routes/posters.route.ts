@@ -7,6 +7,7 @@ import { posterAssetDir, Table } from '../const'
 import { NotFound, BadParams, BadAuth } from '../core/errors'
 import PDFDocument = require('pdfkit')
 import { join } from 'path'
+import { AggregateVote } from '../core/queries'
 
 /** Decorate a poster for the API by putting the pdf_url on it */
 function decoratePoster(poster: Poster & any) {
@@ -203,10 +204,31 @@ export async function votes({ req, sendData, knex, queries }: RouteContext) {
     .where('poster_options.poster_id', id)
     .groupBy('poster_options.poster_id')
 
+  let devices = await knex(Table.devicePoster)
+    .select({
+      id: 'devices.id',
+      created_at: 'devices.created_at',
+      updated_at: 'devices.updated_at',
+      uuid: 'devices.uuid',
+    })
+    .where({ poster_id: id })
+    .innerJoin('devices', 'device_poster.device_id', 'devices.id')
+
+  let votes = await queries.devicePosterVotes(id)
+
+  let deviceVotes: Record<number, AggregateVote[]> = {}
+  for (const device of devices) {
+    deviceVotes[device.id] = queries.sumPosterVotes(
+      votes.filter((v) => v.device_id === device.id)
+    )
+  }
+
   // Fetch & send the votes
   sendData({
     lastUpdate: updatedResult[0] ? updatedResult[0].max : null,
-    votes: await queries.posterVotes(id),
+    votes: queries.sumPosterVotes(votes),
+    deviceVotes,
+    devices,
   })
 }
 

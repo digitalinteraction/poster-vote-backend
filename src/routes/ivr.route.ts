@@ -235,7 +235,9 @@ export async function voteFinish({
     await queries.storeDeviceVotes(poster, votes, devicePoster.id)
 
     // Send sms confirmation with the votes in
-    let finalVotes = await queries.posterVotes(poster.id)
+    let finalVotes = queries.sumPosterVotes(
+      await queries.devicePosterVotes(poster.id)
+    )
     let smsLines = [`PosterVote Result:`]
     poster.options.forEach((option, index) => {
       smsLines.push(`${option.text}(${finalVotes[index].vote})`)

@@ -9,11 +9,6 @@ import { Table } from '../const'
 
 export type PosterWithOptions = Poster & { options: PosterOption[] }
 
-export type PosterVote = {
-  option_id: number
-  vote: number
-}
-
 export type PosterOptionVote = {
   id: number
   text: string
@@ -21,12 +16,20 @@ export type PosterOptionVote = {
   min: number
   max: number
   vote: number
+  recorded_at: Date
+  device_id: number
+}
+
+export interface AggregateVote {
+  option_id: number
+  vote: number
 }
 
 export type Queries = {
   with: (knex: Knex) => Queries
   posterWithOptions: (id: number) => Promise<PosterWithOptions | null>
-  posterVotes: (id: number) => Promise<PosterVote[]>
+  devicePosterVotes: (id: number) => Promise<PosterOptionVote[]>
+  sumPosterVotes: (votes: PosterOptionVote[]) => AggregateVote[]
   assignDevice: (
     uuid: number,
     posterId: number
@@ -55,13 +58,14 @@ export const makeQueries = (knex: Knex): Queries => ({
     return poster
   },
 
-  async posterVotes(posterId: number) {
-    let allVotes: PosterOptionVote[] = await knex(Table.posterOption)
-      .select([
-        'poster_options.id',
-        'poster_options.text',
-        'poster_options.value',
-      ])
+  async devicePosterVotes(posterId: number) {
+    return knex(Table.posterOption)
+      .select({
+        id: 'poster_options.id',
+        text: 'poster_options.text',
+        value: 'poster_options.value',
+        device_id: 'device_poster.device_id',
+      })
       .min({ min: 'device_counts.value' })
       .max({ max: 'device_counts.value' })
       .max({ recorded_at: 'device_counts.created_at' })
@@ -70,9 +74,16 @@ export const makeQueries = (knex: Knex): Queries => ({
         'device_counts.poster_option_id',
         'poster_options.id'
       )
+      .innerJoin(
+        'device_poster',
+        'device_counts.device_poster_id',
+        'device_poster.id'
+      )
       .where('poster_options.poster_id', posterId)
       .groupBy('poster_options.id', 'device_counts.device_poster_id')
+  },
 
+  sumPosterVotes(allVotes: PosterOptionVote[]) {
     // Calculate the final vote for each option
     const keyedVotes: { [idx: number]: number } = {}
 
